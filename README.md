@@ -155,3 +155,9 @@ Fases ainda não definidas — serão criadas no primeiro ciclo de planejamento.
 6. Entrega acadêmica: artigo + documentação
 
 Ver [`.paul/ROADMAP.md`](.paul/ROADMAP.md) para o estado corrente.
+
+---
+
+## Licença
+
+[MIT](LICENSE) © 2026 Carlos Eduardo Coelho Freire Batista
