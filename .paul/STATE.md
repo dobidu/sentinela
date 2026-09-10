@@ -71,7 +71,7 @@ Last session: 2026-09-10
 Stopped at: `/paul:init` concluído — walkthrough de requisitos completo, nenhum PLAN criado
 Next action: Rodar `/paul:plan` para definir as fases do milestone v0.1 e criar o primeiro plano
 Resume file: .paul/HANDOFF-2026-09-10.md
-Git strategy: N/A — diretório não é repositório git; nenhum commit WIP feito
+Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
 - MVP restrito às features 1 + 3 + 5 (relato do cidadão, agregação em áreas de risco, dashboard); features 2 e 4 são fase 2
@@ -79,7 +79,7 @@ Resume context:
 - ROADMAP.md ainda tem `Phase 1 | TBD` como placeholder; planejamento precisa preencher a estrutura de fases
 - CI/CD entra na fase 1; entrega acadêmica (artigo + repositório documentado) deve virar fase própria
 - Política LGPD default (grid ~100m público, bucket privado, sem nome/telefone) foi assumida, não confirmada — revalidar no primeiro PLAN
-- Sem código-fonte ainda: apenas `.paul/` e `.claude/` no diretório
+- Sem código-fonte de aplicação ainda — repo contém apenas `.paul/` + README.md
 
 ---
 *STATE.md — Updated after every significant action*
