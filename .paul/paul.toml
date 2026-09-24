@@ -17,18 +17,18 @@ phases = 5
 [phase]
 number = 1
 name = "Fundação"
-status = "planning"
-plans_completed = 0
+status = "in_progress"
+plans_completed = 1
 
 [loop]
 position = "PLAN"
-plan = "01-01"
-plan_path = "phases/01-fundacao/01-01-PLAN.md"
+plan = "01-02"
+plan_path = "phases/01-fundacao/01-02-PLAN.md"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 1
+total_plans = 2
 total_phases = 5
-last_activity = "2026-09-24T00:00:00Z"
+last_activity = "2026-09-24T18:10:00Z"

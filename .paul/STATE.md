@@ -11,19 +11,19 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-09-10)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 1 (Fundação) — plano 01-01 auditado, pronto para APPLY
+**Current focus:** Phase 1 (Fundação) — plano 01-02 auditado, pronto para APPLY
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 1 of 5 (Fundação) — Planning
-Plan: 01-01 created + audited, awaiting approval
+Plan: 01-02 created + audited, awaiting approval
 Status: PLAN audited, ready for APPLY
-Last activity: 2026-09-24 — Enterprise audit of 01-01 (.paul/phases/01-fundacao/01-01-AUDIT.md)
+Last activity: 2026-09-24 — Enterprise audit of 01-02 (.paul/phases/01-fundacao/01-02-AUDIT.md)
 
 Progress:
-- Milestone: [░░░░░░░░░░] 0%
-- Phase 1: [░░░░░░░░░░] 0%
+- Milestone: [█░░░░░░░░░] ~7% (1 de ~15 planos estimados)
+- Phase 1: [███░░░░░░░] 33% (1/3 planos)
 
 ## Loop Position
 
@@ -49,6 +49,12 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Roadmap v0.1 em 5 fases: Fundação → Relato → Agregação → Dashboard → Validação+Entrega | Plan 01-01 | Features 2/4 vão para v0.2 |
 | Política LGPD confirmada: coord. exata só agente/vigilância, público em grid ~100m, bucket privado + URL assinada, sem nome/telefone | Plan 01-01 | Guia schema/RLS (01-02) e camada pública (fase 4) |
 | Fase 1 dividida em 3 planos: 01-01 scaffold+CI, 01-02 schema/RLS, 01-03 deploy | Plan 01-01 | Planos com ≤3 tasks |
+| 2026-09-24: Versionar AGENTS.md/CLAUDE.md gerados pelo Next 16 (`next dev` sob agente) | Phase 1 | Agentes leem docs da versão instalada em node_modules/next/dist/docs |
+| 2026-09-24: `reporter_token` armazenado só como hash SHA-256 (`reporter_token_hash`) | Plan 01-02 | Minimização LGPD; dedup via hash |
+| 2026-09-24: `anon` sem acesso a tabelas até a fase 2 | Plan 01-02 | Inserção de relato projetada na fase 2 com rate limit |
+| 2026-09-24: admin/agent/surveillance restritos ao próprio município; cross-município só service_role | Plan 01-02 | Policies uniformes por `municipality_id` |
+| 2026-09-24: Modelo refinado — `photo_url`→`photo_path`, `User`→`profile` (1:1 auth.users), `municipality_id` em toda tabela | Plan 01-02 | PROJECT.md Data Model atualizar no UNIFY |
+| 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-02-PLAN.md. Applied 3 must-have, 7 strongly-recommended upgrades. Deferred 5. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 | 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-01-PLAN.md. Applied 3 must-have, 8 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 
 ### Deferred Issues
@@ -60,6 +66,12 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Custo de storage de imagem no free tier | Init | S | Ao definir compressão client-side |
 | Branch protection exigindo CI em `main` | Audit 01-01 | S | Plano 01-03 ou entrada de colaborador |
 | SAST / scan de vulnerabilidades | Audit 01-01 | S | Fase 2 (fotos/GPS) |
+| README: seções "Status" e "Roadmap" desatualizadas | UNIFY 01-01 | S | Plano 01-03 (deploy) ou fase 5 |
+| ESLint 10 (pnpm marca 9 como deprecated) vs. eslint-config-next 16 | UNIFY 01-01 | S | Quando Dependabot propuser |
+| Colunas de auditoria / histórico de status em report | Audit 01-02 | M | Obrigatório junto do 1º caminho de escrita (fase 2/3) |
+| CI checando imutabilidade de migrations | Audit 01-02 | S | Entrada de colaborador |
+| Política de retenção de relatos/fotos (LGPD) | Audit 01-02 | M | Antes da validação em campo (fase 5) |
+| Dado pessoal em `description` livre | Audit 01-02 | S | Fase 2 (UI) |
 
 ### Blockers/Concerns
 
@@ -77,16 +89,16 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-09-24
-Stopped at: Plan 01-01 audited
-Next action: /paul:apply .paul/phases/01-fundacao/01-01-PLAN.md
-Resume file: .paul/phases/01-fundacao/01-01-PLAN.md
+Stopped at: Plan 01-02 audited
+Next action: /paul:apply .paul/phases/01-fundacao/01-02-PLAN.md
+Resume file: .paul/phases/01-fundacao/01-02-PLAN.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
 - MVP restrito às features 1 + 3 + 5 (relato do cidadão, agregação em áreas de risco, dashboard); features 2 e 4 são fase 2
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
 - CI/CD entra na fase 1; entrega acadêmica (artigo + repositório documentado) deve virar fase própria
-- Sem código-fonte de aplicação ainda — repo contém apenas `.paul/` + README.md
+- Scaffold Next.js + CI no ar desde 2026-09-24 (01-01)
 
 ---
 *STATE.md — Updated after every significant action*
