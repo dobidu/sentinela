@@ -1,5 +1,7 @@
 # Sentinela
 
+[![CI](https://github.com/dobidu/sentinela/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dobidu/sentinela/actions/workflows/ci.yml)
+
 **Sistema de relato e triagem de focos de arboviroses**, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
 
 > Status: **planejamento** (v0.0.0). Nenhum código de aplicação implementado ainda — este repositório contém, neste momento, a especificação e o roadmap do projeto.
@@ -155,6 +157,25 @@ Fases ainda não definidas — serão criadas no primeiro ciclo de planejamento.
 6. Entrega acadêmica: artigo + documentação
 
 Ver [`.paul/ROADMAP.md`](.paul/ROADMAP.md) para o estado corrente.
+
+---
+
+## Desenvolvimento
+
+**Pré-requisitos:** Node.js 24 (ver [`.nvmrc`](.nvmrc)) e pnpm — a versão exata está no campo `packageManager` do `package.json` e é ativada com `corepack enable`.
+
+```bash
+pnpm install          # instala dependências (lockfile congelado no CI)
+pnpm dev              # servidor de desenvolvimento em http://localhost:3000
+pnpm lint             # ESLint
+pnpm typecheck        # gera tipos de rota do Next.js e roda tsc --noEmit
+pnpm test             # Vitest (uma execução)
+pnpm test:watch       # Vitest em modo watch
+pnpm test:coverage    # testes com cobertura (coverage/lcov.info)
+pnpm build            # build de produção
+```
+
+O [CI](.github/workflows/ci.yml) executa os mesmos passos, nesta ordem, em todo push e pull request para `main`: `install --frozen-lockfile` → `lint` → `typecheck` → `test:coverage` → `build`.
 
 ---
 
