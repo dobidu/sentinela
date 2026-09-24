@@ -177,6 +177,28 @@ pnpm build            # build de produção
 
 O [CI](.github/workflows/ci.yml) executa os mesmos passos, nesta ordem, em todo push e pull request para `main`: `install --frozen-lockfile` → `lint` → `typecheck` → `test:coverage` → `build`.
 
+### Banco de dados local
+
+**Pré-requisito:** Docker. A CLI do Supabase vem como dependência de desenvolvimento (versão fixa no `package.json`).
+
+```bash
+pnpm db:start       # sobe o Postgres local (PostGIS) e aplica migrations + seed
+pnpm db:reset       # recria o banco do zero: migrations + seed
+pnpm db:test        # testes pgTAP (supabase/tests/database)
+pnpm db:lint        # lint do schema public
+pnpm db:advisors    # advisors de segurança do Supabase
+pnpm db:types       # regenera src/lib/database.types.ts a partir do schema
+pnpm db:stop        # para os containers
+```
+
+O job `database` do CI sobe um banco novo, roda `db:test`, `db:lint`, `db:advisors` e falha se `src/lib/database.types.ts` estiver desatualizado.
+
+**Regras:**
+
+- **Migrations são imutáveis depois de entrar em `main`.** Mudança de schema = nova migration (`pnpm exec supabase migration new <nome>`); nunca editar um arquivo existente em `supabase/migrations/`.
+- **`supabase/seed.sql` é sintético e só para uso local/CI** — nunca é aplicado em ambiente remoto. Os limites dos municípios no seed são retângulos aproximados, não os oficiais.
+- **Privacidade por padrão (LGPD):** RLS está habilitado em todas as tabelas; o role `anon` não tem acesso a nenhuma tabela e usuários autenticados só leem dados do próprio município. Toda tabela nova precisa de RLS — os testes pgTAP falham caso contrário.
+
 ---
 
 ## Licença

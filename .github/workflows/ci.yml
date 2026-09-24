@@ -59,3 +59,46 @@ jobs:
           path: coverage/lcov.info
           if-no-files-found: error
           retention-days: 7
+
+  database:
+    name: Database (migrations, pgTAP, lint, types)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Banco novo: `db start` aplica todas as migrations e o seed.
+      - name: Start local Postgres
+        run: pnpm db:start
+
+      - name: pgTAP tests
+        run: pnpm db:test
+
+      - name: Schema lint
+        run: pnpm db:lint
+
+      - name: Security advisors
+        run: pnpm db:advisors
+
+      - name: Check generated types
+        run: |
+          pnpm db:types
+          if ! git diff --exit-code -- src/lib/database.types.ts; then
+            echo "::error file=src/lib/database.types.ts::tipos desatualizados: rode pnpm db:types e commite o resultado"
+            exit 1
+          fi
