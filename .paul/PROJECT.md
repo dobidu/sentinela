@@ -95,7 +95,7 @@ Sistema greenfield. Multi-município desde o schema. PostGIS para agregação es
 | Cidadão anônimo via `reporter_token` device-scoped | Sem cadastro (atrito), mas permite deduplicar spam | 2026-09-10 | Active |
 | Multi-município no schema desde o dia 1 | Retrofit de tenancy depois é caro | 2026-09-10 | Active |
 | `RiskArea` materializada, não view | Alerta precisa de estado para não redisparar | 2026-09-10 | Active |
-| Grid ~100m na camada pública | Mitigação LGPD para geolocalização de terceiros | 2026-09-10 | Active |
+| Grid ~100m na camada pública | Mitigação LGPD para geolocalização de terceiros (confirmado pelo usuário em 2026-09-24) | 2026-09-10 | Active |
 | Integração e-SUS/SINAN fora do MVP | Prazo de 60h; dependência institucional | 2026-09-10 | Active |
 | CI/CD desde o início | Entrega acadêmica exige repositório bem documentado e reprodutível | 2026-09-10 | Active |
 

@@ -11,25 +11,26 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-09-10)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Project initialized — ready for planning
+**Current focus:** Phase 1 (Fundação) — plano 01-01 auditado, pronto para APPLY
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
-Phase: Not yet defined
-Plan: None yet
-Status: Ready to create roadmap and first PLAN
-Last activity: 2026-09-10 — Project initialized
+Phase: 1 of 5 (Fundação) — Planning
+Plan: 01-01 created + audited, awaiting approval
+Status: PLAN audited, ready for APPLY
+Last activity: 2026-09-24 — Enterprise audit of 01-01 (.paul/phases/01-fundacao/01-01-AUDIT.md)
 
 Progress:
 - Milestone: [░░░░░░░░░░] 0%
+- Phase 1: [░░░░░░░░░░] 0%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ○        ○        ○     [Ready for first PLAN]
+  ✓        ○        ○     [Plan created, awaiting approval]
 ```
 
 ## Accumulated Context
@@ -45,6 +46,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Grid ~100m na camada pública (LGPD) | Init | Duas visões de precisão espacial |
 | Integração e-SUS/SINAN fora do MVP | Init | Vira análise de necessidade no roadmap |
 | CI/CD desde o início | Init | Fase 1 inclui pipeline |
+| Roadmap v0.1 em 5 fases: Fundação → Relato → Agregação → Dashboard → Validação+Entrega | Plan 01-01 | Features 2/4 vão para v0.2 |
+| Política LGPD confirmada: coord. exata só agente/vigilância, público em grid ~100m, bucket privado + URL assinada, sem nome/telefone | Plan 01-01 | Guia schema/RLS (01-02) e camada pública (fase 4) |
+| Fase 1 dividida em 3 planos: 01-01 scaffold+CI, 01-02 schema/RLS, 01-03 deploy | Plan 01-01 | Planos com ≤3 tasks |
+| 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-01-PLAN.md. Applied 3 must-have, 8 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 
 ### Deferred Issues
 
@@ -53,6 +58,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Análise de necessidade de integração e-SUS VS / SINAN | Init | M | Pós-MVP |
 | Política de blur de rosto/placa nas fotos | Init | M | Antes de qualquer exposição pública de imagem |
 | Custo de storage de imagem no free tier | Init | S | Ao definir compressão client-side |
+| Branch protection exigindo CI em `main` | Audit 01-01 | S | Plano 01-03 ou entrada de colaborador |
+| SAST / scan de vulnerabilidades | Audit 01-01 | S | Fase 2 (fotos/GPS) |
 
 ### Blockers/Concerns
 
@@ -63,22 +70,22 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Boundaries (Active)
 
-None yet — set during first PLAN.
+- `.paul/*`, `.claude/`, `.serena/`, `LICENSE` — não alterar em planos de código
+- README.md / .gitignore — só acréscimos
+- Sem commit/push sem autorização explícita (auto_commit: false)
 
 ## Session Continuity
 
-Last session: 2026-09-10
-Stopped at: `/paul:init` concluído — walkthrough de requisitos completo, nenhum PLAN criado
-Next action: Rodar `/paul:plan` para definir as fases do milestone v0.1 e criar o primeiro plano
-Resume file: .paul/HANDOFF-2026-09-10.md
+Last session: 2026-09-24
+Stopped at: Plan 01-01 audited
+Next action: /paul:apply .paul/phases/01-fundacao/01-01-PLAN.md
+Resume file: .paul/phases/01-fundacao/01-01-PLAN.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
 - MVP restrito às features 1 + 3 + 5 (relato do cidadão, agregação em áreas de risco, dashboard); features 2 e 4 são fase 2
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
-- ROADMAP.md ainda tem `Phase 1 | TBD` como placeholder; planejamento precisa preencher a estrutura de fases
 - CI/CD entra na fase 1; entrega acadêmica (artigo + repositório documentado) deve virar fase própria
-- Política LGPD default (grid ~100m público, bucket privado, sem nome/telefone) foi assumida, não confirmada — revalidar no primeiro PLAN
 - Sem código-fonte de aplicação ainda — repo contém apenas `.paul/` + README.md
 
 ---
