@@ -11,15 +11,15 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 1 (Fundação) — plano 01-03 auditado, pronto para APPLY
+**Current focus:** Phase 1 (Fundação) — 01-03 aplicado, aguardando UNIFY (último plano da fase)
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
-Phase: 1 of 5 (Fundação) — Planning
-Plan: 01-03 created + audited, awaiting approval
-Status: PLAN audited, ready for APPLY
-Last activity: 2026-09-24 — Enterprise audit of 01-03 (.paul/phases/01-fundacao/01-03-AUDIT.md)
+Phase: 1 of 5 (Fundação) — In progress
+Plan: 01-03 applied, awaiting UNIFY
+Status: APPLY complete, ready for UNIFY
+Last activity: 2026-09-24 — APPLY 01-03 concluído; produção no ar (https://sentinela-sigma-eosin.vercel.app)
 
 Progress:
 - Milestone: [█░░░░░░░░░] ~13% (2 de ~15 planos estimados)
@@ -30,7 +30,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○     [Plan created, awaiting approval]
+  ✓        ✓        ○     [Applied, ready for UNIFY]
 ```
 
 ## Accumulated Context
@@ -99,9 +99,19 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-09-24
-Stopped at: Plan 01-03 audited
-Next action: /paul:apply .paul/phases/01-fundacao/01-03-PLAN.md
+Stopped at: APPLY 01-03 concluído (commits b599cbb, ad5a310, bfa880c; CI runs 36045316723 e seguinte verdes)
+Next action: /paul:unify .paul/phases/01-fundacao/01-03-PLAN.md → transição da Fase 1
 Resume file: .paul/phases/01-fundacao/01-03-PLAN.md
+APPLY log 01-03 (insumo p/ UNIFY):
+- Supabase `sentinela` ref ftibuibtjgqxwthwvthf, sa-east-1, org "dobidu's Org"; migrations 2/2, seed não aplicado, municipality=0, anon_grants=0, auth_write=0, tabelas sem RLS=0, advisors security limpo; REST anon → 42501
+- Signup: fechado via Management API (PATCH só disable_signup) — DESVIO do plano (`config push` enviaria config local inteira, ex. site_url 127.0.0.1); local config.toml enable_signup=false; site_url remoto = URL de produção
+- Vercel: projeto sentinela (dobidus-projects), gru1, gitForkProtection=true, env públicas em production+preview (preview via REST API — CLI exigia branch); domínio sentinela-sigma-eosin.vercel.app
+- Human actions: supabase login (TTY: terminal próprio, opção A); instalar/configurar app Vercel no GitHub; Deployment Checks no dashboard (sem API)
+- GitHub: environment production (só main) com secret SUPABASE_DB_URL + var SUPABASE_PROJECT_REF; secret scanning + push protection on; branch protection (2 checks, sem force-push/deleção, enforce_admins=false)
+- deploy-db: setup-cli v3.0.1 por SHA, versão 2.117.0 sincronizada (check testado com drift); log sem URL/senha; "Remote database is up to date"
+- Gate de produção: deployment ad5a310 mostrou "no checks configured" (checks recém-configurados); verificado com commit vazio bfa880c — alias ficou no deploy anterior durante o CI e moveu às 19:28:12Z, 11s após Deploy database (19:28:01Z)
+- Incidente menor: listagem de api-keys expôs 4 chars aleatórios da secret key `default` (sb_secret_rA8_…); recomendado roll (não usada)
+- README: Status/Roadmap corrigidos (exceção declarada) + seção Deploy
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
