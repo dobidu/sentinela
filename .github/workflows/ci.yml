@@ -82,6 +82,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # O job deploy-db instala a CLI sem npm deps; a versão precisa bater com o package.json.
+      - name: Check Supabase CLI version sync
+        run: |
+          PKG="$(node -p "require('./package.json').devDependencies.supabase")"
+          if ! grep -qE "^\s+version: ${PKG}\s*$" .github/workflows/ci.yml; then
+            echo "::error file=.github/workflows/ci.yml::setup-cli version difere do supabase ${PKG} do package.json"
+            exit 1
+          fi
+
       # Banco novo: `db start` aplica todas as migrations e o seed.
       - name: Start local Postgres
         run: pnpm db:start
@@ -102,3 +111,41 @@ jobs:
             echo "::error file=src/lib/database.types.ts::tipos desatualizados: rode pnpm db:types e commite o resultado"
             exit 1
           fi
+
+  deploy-db:
+    name: Deploy database
+    needs: [quality, database]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    concurrency:
+      group: deploy-db-production
+      cancel-in-progress: false
+    # Sem pnpm install: nenhum código de dependência npm roda com o secret no ambiente.
+    # Sem dump/SELECT de dados: logs e artifacts de repo público são legíveis por qualquer um.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.117.0
+
+      - name: Migration status
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase migration list --db-url "$SUPABASE_DB_URL"
+
+      - name: Push migrations (dry run)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
+
+      - name: Push migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --yes

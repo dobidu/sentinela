@@ -4,7 +4,7 @@
 
 **Sistema de relato e triagem de focos de arboviroses**, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
 
-> Status: **planejamento** (v0.0.0). Nenhum código de aplicação implementado ainda — este repositório contém, neste momento, a especificação e o roadmap do projeto.
+> Status: **fase 1 — Fundação** (v0.0.0). App Next.js, CI/CD, schema PostGIS com RLS e deploy em nuvem (Vercel + Supabase, São Paulo). As features de relato, agregação e dashboard entram nas fases 2–4. Produção: https://sentinela-sigma-eosin.vercel.app
 
 ---
 
@@ -147,14 +147,17 @@ O projeto é gerido com o [PAUL Framework](https://chrisai.cv/skool) (Plan-Apply
 
 ## Roadmap
 
-Fases ainda não definidas — serão criadas no primeiro ciclo de planejamento. Sequência prevista em alto nível:
+Milestone **v0.1 MVP — Relato, Agregação e Dashboard**, em 5 fases:
 
-1. Fundação: schema PostGIS, scaffolding Next.js, pipeline CI/CD
-2. Relato do cidadão (PWA anônimo, fila offline)
-3. Agregação em áreas de risco (job PostGIS)
-4. Dashboard de vigilância
-5. Triagem do agente + alerta por limiar
-6. Entrega acadêmica: artigo + documentação
+| # | Fase | Entrega | Status |
+|---|------|---------|--------|
+| 1 | Fundação | Scaffold Next.js, CI/CD, schema PostGIS multi-município com RLS, deploy | Em andamento |
+| 2 | Relato do cidadão | PWA anônimo: foto + GPS + tipo de criadouro, fila offline | — |
+| 3 | Agregação em áreas de risco | Job PostGIS que materializa `risk_area` (< 30s para 10k relatos) | — |
+| 4 | Dashboard de vigilância | Mapa de calor, séries temporais, exportação; camada pública em grid ~100m | — |
+| 5 | Validação e entrega acadêmica | Teste em campo com agente de endemias, Lighthouse ≥ 90, artigo | — |
+
+Depois do MVP: **v0.2** com triagem do agente (feature 2) e alerta por limiar (feature 4); análise de necessidade de integração com e-SUS VS / SINAN.
 
 Ver [`.paul/ROADMAP.md`](.paul/ROADMAP.md) para o estado corrente.
 
@@ -198,6 +201,21 @@ O job `database` do CI sobe um banco novo, roda `db:test`, `db:lint`, `db:adviso
 - **Migrations são imutáveis depois de entrar em `main`.** Mudança de schema = nova migration (`pnpm exec supabase migration new <nome>`); nunca editar um arquivo existente em `supabase/migrations/`.
 - **`supabase/seed.sql` é sintético e só para uso local/CI** — nunca é aplicado em ambiente remoto. Os limites dos municípios no seed são retângulos aproximados, não os oficiais.
 - **Privacidade por padrão (LGPD):** RLS está habilitado em todas as tabelas; o role `anon` não tem acesso a nenhuma tabela e usuários autenticados só leem dados do próprio município. Toda tabela nova precisa de RLS — os testes pgTAP falham caso contrário.
+
+
+### Deploy
+
+| Componente | Onde | Como chega lá |
+|---|---|---|
+| App Next.js | Vercel (funções em `gru1`, São Paulo) — https://sentinela-sigma-eosin.vercel.app | Vercel Git integration: push em `main` → produção; pull request → preview. A promoção a produção exige os checks do CI verdes (Deployment Checks). |
+| Banco (Postgres + PostGIS) | Supabase gerenciado em `sa-east-1` (São Paulo) | Job `deploy-db` do CI, depois de `quality` e `database` verdes em `main`: `supabase db push` (sem seed), no environment `production` do GitHub. |
+
+- **Credenciais:** o CI usa apenas o secret `SUPABASE_DB_URL` (connection string do session pooler, escopo do projeto). A Vercel só tem as variáveis públicas `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (ver [`.env.example`](.env.example)). Nenhuma chave secreta fica na Vercel nem no repositório.
+- **Auth:** cadastro público desabilitado; contas de agente/vigilância são criadas por um administrador.
+- **App e banco publicam em paralelo (expand/contract):** todo código de app precisa funcionar com o schema anterior e com o novo. Migrations aditivas primeiro; remoção de coluna/tabela só numa release posterior, depois que nenhum código a usa.
+- **Falha de migration = forward-fix:** cada migration é aplicada em transação; se falhar, o banco permanece na migration anterior. A correção é uma **nova** migration — nunca editar uma já aplicada.
+- **Conferir antes de publicar:** `pnpm db:push:dry --db-url "$SUPABASE_DB_URL"` mostra o que seria aplicado, sem alterar nada.
+- **Required checks:** `main` exige os checks `Lint, typecheck, test, build` e `Database (migrations, pgTAP, lint, types)`. Renomear esses jobs no workflow exige atualizar a branch protection (e os Deployment Checks da Vercel).
 
 ---
 

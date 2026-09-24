@@ -17,7 +17,9 @@
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --local --schema public --level warning --fail-on warning",
     "db:types": "supabase gen types --lang typescript --local --schema public > src/lib/database.types.ts",
-    "db:advisors": "supabase db advisors --local --type security --level warn --fail-on warn"
+    "db:advisors": "supabase db advisors --local --type security --level warn --fail-on warn",
+    "db:push": "supabase db push",
+    "db:push:dry": "supabase db push --dry-run"
   },
   "dependencies": {
     "next": "16.3.6",
