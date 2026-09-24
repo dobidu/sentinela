@@ -20,8 +20,8 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 |-----------|-------|
 | Type | Application |
 | Version | 0.0.0 |
-| Status | Initializing |
-| Last Updated | 2026-09-10 |
+| Status | Fase 1 (Fundação) em andamento |
+| Last Updated | 2026-09-24 |
 
 ## Requirements
 
@@ -39,7 +39,7 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 None yet.
 
 ### Active (In Progress)
-None yet.
+- Fundação: scaffold + CI (01-01 ✓), schema PostGIS + RLS (01-02 ✓), deploy (01-03)
 
 ### Planned (Next)
 - MVP: relato anônimo (PWA) + job de agregação PostGIS + dashboard de vigilância
@@ -101,14 +101,18 @@ Sistema greenfield. Multi-município desde o schema. PostGIS para agregação es
 
 ## Data Model
 
-| Entidade | Campos-chave | Relações |
+Implementado em `supabase/migrations/` (plano 01-02). Toda tabela de domínio carrega `municipality_id`; consistência de tenant por FK composta `(x_id, municipality_id)`.
+
+| Entidade (tabela) | Campos-chave | Relações |
 |---|---|---|
-| **Report** | `id`, `geom (Point, SRID 4326)`, `breeding_site_type`, `photo_url`, `description`, `status` (pending/confirmed/dismissed/resolved), `created_at`, `reporter_token` | → RiskArea (espacial), → Inspection (1:N) |
-| **RiskArea** | `id`, `geom (Polygon)`, `report_count`, `risk_level`, `window_start/end`, `computed_at` | ← Report (agregação) |
-| **Alert** | `id`, `risk_area_id`, `threshold_rule`, `sent_at`, `channel`, `acknowledged_at` | → RiskArea |
-| **User** | `id`, `role` (agent/surveillance/admin), `municipality_id` | → Inspection |
-| **Inspection** | `id`, `report_id`, `agent_id`, `outcome`, `visited_at`, `notes` | → Report, → User |
-| **Municipality** | `id`, `name`, `ibge_code`, `boundary (Polygon)` | escopo de tudo |
+| **Report** (`report`) | `id`, `municipality_id`, `geom (Point, SRID 4326)`, `breeding_site_type`, `photo_path` (bucket privado; URL assinada na leitura), `description` (≤500), `status` (pending/confirmed/dismissed/resolved), `created_at`, `reporter_token_hash` (SHA-256 — token nunca armazenado) | → RiskArea (espacial), → Inspection (1:N, RESTRICT) |
+| **RiskArea** (`risk_area`) | `id`, `municipality_id`, `geom (Polygon)`, `report_count`, `risk_level`, `window_start/end`, `computed_at` | ← Report (agregação), → Alert |
+| **Alert** (`alert`) | `id`, `municipality_id`, `risk_area_id`, `threshold_rule`, `channel`, `sent_at`, `acknowledged_at`, `acknowledged_by` | → RiskArea, → Profile |
+| **User** (`profile`, 1:1 `auth.users`) | `id`, `role` (agent/surveillance/admin), `municipality_id` | → Inspection, → Alert |
+| **Inspection** (`inspection`) | `id`, `municipality_id`, `report_id`, `agent_id`, `outcome`, `visited_at`, `notes` | → Report, → Profile |
+| **Municipality** (`municipality`) | `id`, `name`, `ibge_code`, `boundary (MultiPolygon)` | escopo de tudo |
+
+**Acesso (RLS + privilégios):** `anon` sem acesso; `authenticated` só SELECT, restrito ao próprio município; escritas via caminhos específicos por fase ou `service_role`.
 
 ## Success Metrics
 
@@ -137,7 +141,7 @@ Sistema greenfield. Multi-município desde o schema. PostGIS para agregação es
 
 | Resource | URL |
 |----------|-----|
-| Repository | TBD |
+| Repository | https://github.com/dobidu/sentinela |
 | Production | TBD |
 | Documentation | TBD |
 

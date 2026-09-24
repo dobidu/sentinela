@@ -8,22 +8,22 @@ about: "sentinela"
 
 ## Project Reference
 
-See: .paul/PROJECT.md (updated 2026-09-10)
+See: .paul/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 1 (Fundação) — plano 01-02 auditado, pronto para APPLY
+**Current focus:** Phase 1 (Fundação) — plano 01-03 auditado, pronto para APPLY
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 1 of 5 (Fundação) — Planning
-Plan: 01-02 created + audited, awaiting approval
+Plan: 01-03 created + audited, awaiting approval
 Status: PLAN audited, ready for APPLY
-Last activity: 2026-09-24 — Enterprise audit of 01-02 (.paul/phases/01-fundacao/01-02-AUDIT.md)
+Last activity: 2026-09-24 — Enterprise audit of 01-03 (.paul/phases/01-fundacao/01-03-AUDIT.md)
 
 Progress:
-- Milestone: [█░░░░░░░░░] ~7% (1 de ~15 planos estimados)
-- Phase 1: [███░░░░░░░] 33% (1/3 planos)
+- Milestone: [█░░░░░░░░░] ~13% (2 de ~15 planos estimados)
+- Phase 1: [███████░░░] 67% (2/3 planos)
 
 ## Loop Position
 
@@ -53,7 +53,11 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-09-24: `reporter_token` armazenado só como hash SHA-256 (`reporter_token_hash`) | Plan 01-02 | Minimização LGPD; dedup via hash |
 | 2026-09-24: `anon` sem acesso a tabelas até a fase 2 | Plan 01-02 | Inserção de relato projetada na fase 2 com rate limit |
 | 2026-09-24: admin/agent/surveillance restritos ao próprio município; cross-município só service_role | Plan 01-02 | Policies uniformes por `municipality_id` |
-| 2026-09-24: Modelo refinado — `photo_url`→`photo_path`, `User`→`profile` (1:1 auth.users), `municipality_id` em toda tabela | Plan 01-02 | PROJECT.md Data Model atualizar no UNIFY |
+| 2026-09-24: Modelo refinado — `photo_url`→`photo_path`, `User`→`profile` (1:1 auth.users), `municipality_id` em toda tabela | Plan 01-02 | PROJECT.md Data Model atualizado |
+| 2026-09-24: EXECUTE de PUBLIC revogado globalmente p/ funções criadas por postgres; toda função nova exige GRANT explícito | Plan 01-02 | Fases 2/3 (RPCs, extensões) |
+| 2026-09-24: Deploy — Supabase sa-east-1, Vercel Git integration (gru1), CD de migrations no Actions (environment production), branch protection com checks | Plan 01-03 | Fluxo push→CI→db push→app |
+| 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-03-PLAN.md. Applied 3 must-have, 7 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
+| 2026-09-24: CD de DB usa só `SUPABASE_DB_URL` (session pooler, escopo projeto) — sem access token de conta no GitHub; signup público desabilitado | Plan 01-03 | Least privilege |
 | 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-02-PLAN.md. Applied 3 must-have, 7 strongly-recommended upgrades. Deferred 5. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 | 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-01-PLAN.md. Applied 3 must-have, 8 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 
@@ -72,6 +76,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | CI checando imutabilidade de migrations | Audit 01-02 | S | Entrada de colaborador |
 | Política de retenção de relatos/fotos (LGPD) | Audit 01-02 | M | Antes da validação em campo (fase 5) |
 | Dado pessoal em `description` livre | Audit 01-02 | S | Fase 2 (UI) |
+| Banco de staging separado p/ previews | Audit 01-03 | M | Fase 2 (previews com escrita) |
+| Keep-alive p/ pausa do free tier Supabase | Audit 01-03 | S | Fase 5 |
+| Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
+| anon não lê `municipality` — formulário de relato precisa de lista/resolução por ponto (RPC) | UNIFY 01-02 | S | Fase 2 |
 
 ### Blockers/Concerns
 
@@ -83,22 +91,24 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Boundaries (Active)
 
 - `.paul/*`, `.claude/`, `.serena/`, `LICENSE` — não alterar em planos de código
+- `supabase/migrations/*` já em main — imutáveis (mudança = nova migration)
+- `supabase/seed.sql` — nunca aplicar em ambiente remoto
 - README.md / .gitignore — só acréscimos
 - Sem commit/push sem autorização explícita (auto_commit: false)
 
 ## Session Continuity
 
 Last session: 2026-09-24
-Stopped at: Plan 01-02 audited
-Next action: /paul:apply .paul/phases/01-fundacao/01-02-PLAN.md
-Resume file: .paul/phases/01-fundacao/01-02-PLAN.md
+Stopped at: Plan 01-03 audited
+Next action: /paul:apply .paul/phases/01-fundacao/01-03-PLAN.md
+Resume file: .paul/phases/01-fundacao/01-03-PLAN.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
 - MVP restrito às features 1 + 3 + 5 (relato do cidadão, agregação em áreas de risco, dashboard); features 2 e 4 são fase 2
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
 - CI/CD entra na fase 1; entrega acadêmica (artigo + repositório documentado) deve virar fase própria
-- Scaffold Next.js + CI no ar desde 2026-09-24 (01-01)
+- Scaffold Next.js + CI no ar desde 2026-09-24 (01-01); schema PostGIS + RLS + pgTAP desde 2026-09-24 (01-02)
 
 ---
 *STATE.md — Updated after every significant action*

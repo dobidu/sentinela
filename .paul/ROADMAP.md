@@ -20,7 +20,7 @@ Phases: 0 of 5 complete
 
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
-| 1 | Fundação | 1/3 (01-01 ✓, 01-02 planning, 01-03) | In progress | - |
+| 1 | Fundação | 2/3 (01-01 ✓, 01-02 ✓, 01-03 planning) | In progress | - |
 | 2 | Relato do cidadão | TBD | Not started | - |
 | 3 | Agregação em áreas de risco | TBD | Not started | - |
 | 4 | Dashboard de vigilância | TBD | Not started | - |
@@ -33,7 +33,7 @@ Phases: 0 of 5 complete
 **Depends on:** nada
 **Plans:**
 - 01-01 ✓ — Scaffold Next.js + TS + Vitest/ESLint + pipeline GitHub Actions (2026-09-24)
-- 01-02 — Supabase local + migrations PostGIS (6 entidades + Municipality) + RLS base + checagem de migration no CI
+- 01-02 ✓ — Supabase local + migrations PostGIS (6 entidades + Municipality) + RLS base + checagem de migration no CI (2026-09-24)
 - 01-03 — Deploy Vercel + projeto Supabase gerenciado + variáveis de ambiente
 
 ### Phase 2: Relato do cidadão (Feature 1)
