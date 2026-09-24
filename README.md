@@ -57,7 +57,7 @@ O atrito zero para o cidadão é a aposta central: qualquer fluxo de cadastro de
 | Autenticação | Supabase Auth (roles: `agent`, `surveillance`, `admin`) | Cidadão permanece anônimo |
 | Armazenamento | Supabase Storage (bucket privado, URL assinada) | Fotos de relato |
 | Offline | Service Worker + fila local | Requisito de campo |
-| Hospedagem | Vercel (app) + Supabase gerenciado (DB/storage) | Nuvem gerenciada, sem infra própria |
+| Hospedagem | Vercel (app, funções em `gru1`) + Supabase gerenciado (DB/storage em `sa-east-1`) | Nuvem gerenciada, sem infra própria; dados de cidadãos ficam no Brasil |
 | CI/CD | GitHub Actions | Desde o início do projeto |
 
 **Alternativas descartadas:** app nativo (Expo/React Native) — melhor offline e GPS para o agente, mas exigir instalação do cidadão mata a taxa de relato. PWA cobre os dois papéis no MVP.
@@ -66,19 +66,24 @@ O atrito zero para o cidadão é a aposta central: qualquer fluxo de cadastro de
 
 ## Modelo de dados
 
-| Entidade | Campos-chave | Relações |
+Implementado em [`supabase/migrations/`](supabase/migrations). Toda tabela de domínio carrega `municipality_id`.
+
+| Entidade (tabela) | Campos-chave | Relações |
 |---|---|---|
-| **Report** | `id`, `geom (Point, SRID 4326)`, `breeding_site_type`, `photo_url`, `description`, `status` (`pending`/`confirmed`/`dismissed`/`resolved`), `created_at`, `reporter_token` | → RiskArea (espacial), → Inspection (1:N) |
-| **RiskArea** | `id`, `geom (Polygon)`, `report_count`, `risk_level`, `window_start/end`, `computed_at` | ← Report (agregação) |
-| **Alert** | `id`, `risk_area_id`, `threshold_rule`, `sent_at`, `channel`, `acknowledged_at` | → RiskArea |
-| **User** | `id`, `role`, `municipality_id` | → Inspection |
-| **Inspection** | `id`, `report_id`, `agent_id`, `outcome`, `visited_at`, `notes` | → Report, → User |
-| **Municipality** | `id`, `name`, `ibge_code`, `boundary (Polygon)` | escopo de tudo |
+| **Report** (`report`) | `id`, `municipality_id`, `geom (Point, SRID 4326)`, `breeding_site_type`, `photo_path`, `description`, `status` (`pending`/`confirmed`/`dismissed`/`resolved`), `created_at`, `reporter_token_hash` | → RiskArea (espacial), → Inspection (1:N) |
+| **RiskArea** (`risk_area`) | `id`, `municipality_id`, `geom (Polygon)`, `report_count`, `risk_level`, `window_start/end`, `computed_at` | ← Report (agregação), → Alert |
+| **Alert** (`alert`) | `id`, `municipality_id`, `risk_area_id`, `threshold_rule`, `channel`, `sent_at`, `acknowledged_at`, `acknowledged_by` | → RiskArea, → Profile |
+| **User** (`profile`, 1:1 com `auth.users`) | `id`, `role` (`agent`/`surveillance`/`admin`), `municipality_id` | → Inspection, → Alert |
+| **Inspection** (`inspection`) | `id`, `municipality_id`, `report_id`, `agent_id`, `outcome`, `visited_at`, `notes` | → Report, → Profile |
+| **Municipality** (`municipality`) | `id`, `name`, `ibge_code`, `boundary (MultiPolygon)` | escopo de tudo |
 
 **Decisões de modelagem:**
-- **Multi-município desde o schema** — retrofit de tenancy depois é caro.
+- **Multi-município desde o schema** — retrofit de tenancy depois é caro. A consistência entre tabelas relacionadas é garantida por FKs compostas `(x_id, municipality_id)`: uma inspeção não pode apontar para relato ou agente de outro município.
 - **`RiskArea` materializada** (job recalcula), não view — o alerta precisa de estado para saber o que já disparou e não redisparar.
-- **`reporter_token` device-scoped** — mantém o cidadão anônimo, mas permite deduplicar spam.
+- **`reporter_token` device-scoped, armazenado só como hash SHA-256** — mantém o cidadão anônimo e permite deduplicar spam sem guardar o identificador do dispositivo.
+- **`photo_path`, não URL** — o caminho no bucket privado é persistido; a URL assinada é gerada na leitura.
+- **Integridade espacial** — um trigger rejeita relato cujo ponto está fora do limite do município.
+- **Histórico preservado** — nenhuma FK apaga inspeções em cascata; relato, usuário ou município com histórico não pode ser apagado.
 
 ---
 
@@ -88,7 +93,10 @@ Uma foto de quintal alheio com GPS preciso é **dado pessoal de terceiro**. Miti
 
 - Coordenada exata visível **apenas** para `agent` e `surveillance`; a camada pública usa grid de ~100m.
 - Fotos em bucket privado, acessadas por URL assinada — nunca públicas.
-- **Sem coleta de nome, telefone ou e-mail** do cidadão no MVP (minimização de dados).
+- **Sem coleta de nome, telefone ou e-mail** do cidadão no MVP (minimização de dados); o identificador do dispositivo só é guardado como hash.
+- **Duas barreiras no banco:** privilégios mínimos (o role `anon` não tem acesso a nenhuma tabela; usuários autenticados só leem) e RLS em todas as tabelas, restrito ao município do usuário. Ambas cobertas por testes pgTAP no CI.
+- **Cadastro público desabilitado** — contas de agente/vigilância são criadas por um administrador.
+- **Dados no Brasil** — banco em `sa-east-1` (São Paulo).
 
 Em aberto: política de blur de rosto/placa nas fotos — necessária antes de qualquer exposição pública de imagem.
 
@@ -131,6 +139,18 @@ O escopo enxuto (features 1 + 3 + 5) é consequência direta desse orçamento de
 ## Estrutura do repositório
 
 ```
+src/
+├── app/                    # App Router do Next.js (páginas, layout, testes co-localizados)
+└── lib/
+    └── database.types.ts   # Tipos TypeScript gerados do schema (pnpm db:types)
+supabase/
+├── config.toml             # Configuração do Supabase local
+├── migrations/             # Schema versionado (imutável depois de entrar em main)
+├── seed.sql                # Dados sintéticos — só local/CI
+└── tests/database/         # Testes pgTAP (schema, RLS, privilégios)
+.github/
+├── workflows/ci.yml        # CI (quality, database) + CD do banco (deploy-db)
+└── dependabot.yml          # Atualizações semanais de actions e npm
 .paul/                      # Especificação e gestão do projeto
 ├── PROJECT.md              # Requisitos, modelo de dados, constraints, decisões
 ├── ROADMAP.md              # Milestones e fases
@@ -138,7 +158,9 @@ O escopo enxuto (features 1 + 3 + 5) é consequência direta desse orçamento de
 ├── config.md               # Configuração de integrações
 ├── paul.toml               # Manifest do projeto
 ├── ledger.toml             # Histórico de sessões
-└── phases/                 # Planos e sumários por fase
+└── phases/                 # Planos, auditorias e sumários por fase
+AGENTS.md, CLAUDE.md        # Instruções para agentes de código (geradas pelo Next.js 16)
+.env.example                # Variáveis públicas do Supabase usadas pelo app
 ```
 
 O projeto é gerido com o [PAUL Framework](https://chrisai.cv/skool) (Plan-Apply-Unify Loop). Os arquivos do framework em si (`.claude/`) não são versionados aqui.
