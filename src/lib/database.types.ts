@@ -186,6 +186,7 @@ export type Database = {
           photo_path: string
           reporter_token_hash: string
           status: Database["public"]["Enums"]["report_status"]
+          updated_at: string
         }
         Insert: {
           breeding_site_type: Database["public"]["Enums"]["breeding_site_type"]
@@ -197,6 +198,7 @@ export type Database = {
           photo_path: string
           reporter_token_hash: string
           status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
         }
         Update: {
           breeding_site_type?: Database["public"]["Enums"]["breeding_site_type"]
@@ -208,6 +210,7 @@ export type Database = {
           photo_path?: string
           reporter_token_hash?: string
           status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -216,6 +219,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "municipality"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_status_event: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          from_status: Database["public"]["Enums"]["report_status"] | null
+          id: string
+          municipality_id: string
+          report_id: string
+          source: string
+          to_status: Database["public"]["Enums"]["report_status"]
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: Database["public"]["Enums"]["report_status"] | null
+          id?: string
+          municipality_id: string
+          report_id: string
+          source: string
+          to_status: Database["public"]["Enums"]["report_status"]
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: Database["public"]["Enums"]["report_status"] | null
+          id?: string
+          municipality_id?: string
+          report_id?: string
+          source?: string
+          to_status?: Database["public"]["Enums"]["report_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_status_event_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipality"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_status_event_report_id_municipality_id_fkey"
+            columns: ["report_id", "municipality_id"]
+            isOneToOne: false
+            referencedRelation: "report"
+            referencedColumns: ["id", "municipality_id"]
           },
         ]
       }
@@ -265,11 +316,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_upload_report_photo: { Args: never; Returns: boolean }
       current_app_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       current_municipality_id: { Args: never; Returns: string }
+      ping: { Args: never; Returns: number }
+      resolve_municipality: {
+        Args: { p_lat: number; p_lon: number }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
+      submit_report: {
+        Args: {
+          p_breeding_site_type: Database["public"]["Enums"]["breeding_site_type"]
+          p_description?: string
+          p_lat: number
+          p_lon: number
+          p_photo_path: string
+          p_reporter_token: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "agent" | "surveillance" | "admin"

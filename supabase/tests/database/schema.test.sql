@@ -81,7 +81,7 @@ select col_type_is('public', 'report', 'reporter_token_hash', 'bytea', 'reporter
 select throws_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4326), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4326), 'pneu', 'x1.jpg',
             '\x00'::bytea)$$,
   '23514', null, 'hash com tamanho diferente de 32 bytes é rejeitado');
 
@@ -91,28 +91,28 @@ select throws_ok(
 select lives_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-34.2, -7.2), 4326), 'calha', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-34.2, -7.2), 4326), 'calha', 'x2.jpg',
             extensions.digest('t1', 'sha256'))$$,
   'ponto dentro do limite é aceito');
 
 select throws_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-39.5, -9.5), 4326), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-39.5, -9.5), 4326), 'pneu', 'x3.jpg',
             extensions.digest('t2', 'sha256'))$$,
   '23514', null, 'ponto fora do limite do município é rejeitado');
 
 select throws_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4674), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4674), 'pneu', 'x4.jpg',
             extensions.digest('t3', 'sha256'))$$,
   '22023', null, 'SRID diferente de 4326 é rejeitado');
 
 select throws_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('eeeeeeee-0000-4000-8000-000000000000',
-            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4326), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-34.5, -7.5), 4326), 'pneu', 'x5.jpg',
             extensions.digest('t4', 'sha256'))$$,
   '23503', null, 'município inexistente é rejeitado (fail-closed)');
 
@@ -134,13 +134,13 @@ set local role probe_inserter;
 select lives_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-34.3, -7.3), 4326), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-34.3, -7.3), 4326), 'pneu', 'x6.jpg',
             extensions.digest('t5', 'sha256'))$$,
   'role sem SELECT em municipality insere ponto válido (trigger SECURITY DEFINER)');
 select throws_ok(
   $$insert into public.report (municipality_id, geom, breeding_site_type, photo_path, reporter_token_hash)
     values ('aaaaaaaa-0000-4000-8000-00000000000a',
-            extensions.st_setsrid(extensions.st_makepoint(-39.5, -9.5), 4326), 'pneu', 'x.jpg',
+            extensions.st_setsrid(extensions.st_makepoint(-39.5, -9.5), 4326), 'pneu', 'x7.jpg',
             extensions.digest('t6', 'sha256'))$$,
   '23514', null, 'role sem SELECT em municipality não consegue inserir ponto fora (fail-closed)');
 reset role;

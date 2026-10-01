@@ -239,6 +239,32 @@ O job `database` do CI sobe um banco novo, roda `db:test`, `db:lint`, `db:adviso
 - **Conferir antes de publicar:** `pnpm db:push:dry --db-url "$SUPABASE_DB_URL"` mostra o que seria aplicado, sem alterar nada.
 - **Required checks:** `main` exige os checks `Lint, typecheck, test, build` e `Database (migrations, pgTAP, lint, types)`. Renomear esses jobs no workflow exige atualizar a branch protection (e os Deployment Checks da Vercel).
 
+### Escrita anônima (relato do cidadão)
+
+O cidadão não tem conta. O app usa só a publishable key e faz duas chamadas, nesta ordem:
+
+1. **Upload da foto** para o bucket privado `report-photos`, com nome `<uuid v4>.webp` ou `.jpg` (até 2 MB, só `image/webp`/`image/jpeg`). O role `anon` só pode **inserir**: não lê, não lista, não sobrescreve, não apaga. Teto do bucket: 300 uploads por hora e 3000 objetos no total; acima disso o upload é recusado.
+2. **`rpc/submit_report`**, logo depois do upload: `p_reporter_token` (UUID v4 gerado e guardado no dispositivo), `p_lon`, `p_lat`, `p_breeding_site_type`, `p_photo_path`, `p_description` (opcional, ≤ 500). O município é resolvido pelo ponto; o token é gravado só como hash SHA-256, calculado no banco. Devolve o `id` do relato.
+
+Reenviar com o **mesmo token e a mesma foto** é seguro: devolve o mesmo `id` sem criar outro relato. É o que a fila offline deve fazer quando não sabe se o envio anterior chegou.
+
+| SQLSTATE | HTTP | Retentável | Significado | Ação do cliente |
+|---|---|---|---|---|
+| `PT422` | 422 | não | Validação (token, coordenada, tipo, caminho, descrição) ou local fora dos municípios atendidos | Mostrar o erro; não reenviar igual |
+| `PT404` | 404 | sim | Foto não encontrada no bucket ou enviada há mais de 1h | Enviar a foto de novo (novo nome) e chamar `submit_report` |
+| `PT409` | 409 | não | Foto já usada por relato de outro dispositivo | Descartar; gerar novo nome de foto |
+| `PT429` | 429 | sim, depois | Limite: 5/h e 20/24h por dispositivo; 200/h por município | Manter na fila e tentar mais tarde |
+
+Outras RPCs públicas: `resolve_municipality(p_lon, p_lat)` → `{id, name}` do município atendido no ponto (sem o limite geográfico); `ping()` → usada pelo keep-alive. Todo relato e toda mudança de status ficam em `report_status_event`, que é append-only.
+
+### Keep-alive
+
+O free tier do Supabase pausa o projeto depois de ~7 dias sem atividade, e o `Deploy database` falha enquanto o projeto está pausado. O workflow [`keep-alive.yml`](.github/workflows/keep-alive.yml) chama `rpc/ping` a cada 3 dias com a publishable key (variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`; não são secrets). Se falhar, o GitHub avisa por e-mail: restaure o projeto no dashboard e rode de novo o `Deploy database`. O GitHub desativa workflows agendados em repositórios sem commit há 60 dias.
+
+### Atualizar a Supabase CLI
+
+O Dependabot ignora o pacote `supabase`, porque a versão precisa ser trocada em dois lugares **no mesmo commit**: `devDependencies.supabase` no `package.json` e `version:` do passo `supabase/setup-cli` no job `deploy-db` do [`ci.yml`](.github/workflows/ci.yml). O job `database` falha se as duas divergirem. Confira mensalmente se há release de segurança da CLI.
+
 ---
 
 ## Licença

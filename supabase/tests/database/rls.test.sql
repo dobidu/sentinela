@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(46);
+select plan(47);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (independentes do seed): dados em A e em B
@@ -53,7 +53,7 @@ select is(
   0, 'toda tabela de public tem RLS habilitado');
 
 -- ---------------------------------------------------------------------------
--- Privilégios (5)
+-- Privilégios (6)
 -- ---------------------------------------------------------------------------
 select is(
   (select count(*)::int from information_schema.role_table_grants
@@ -65,13 +65,24 @@ select is(
     where table_schema = 'public' and grantee = 'authenticated' and privilege_type <> 'SELECT'),
   0, 'authenticated só tem SELECT nas tabelas de public');
 
+-- Allowlist exata (por assinatura) das funções que anon executa — plano 02-01.
+select is(
+  (select array_agg(p.oid::regprocedure::text order by p.oid::regprocedure::text) from pg_proc p
+    where p.pronamespace = 'public'::regnamespace
+      and has_function_privilege('anon', p.oid, 'execute')),
+  array[
+    'can_upload_report_photo()',
+    'ping()',
+    'resolve_municipality(double precision,double precision)',
+    'submit_report(uuid,double precision,double precision,breeding_site_type,text,text)'
+  ], 'anon executa exatamente as 4 funções do caminho de relato');
+
 select is(
   (select count(*)::int from pg_proc p
     where p.pronamespace = 'public'::regnamespace
-      and (has_function_privilege('anon', p.oid, 'execute')
-           or exists (select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
-                       where a.grantee = 0 and a.privilege_type = 'EXECUTE'))),
-  0, 'nem anon nem PUBLIC executam funções de public');
+      and exists (select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+                   where a.grantee = 0 and a.privilege_type = 'EXECUTE')),
+  0, 'PUBLIC não executa nenhuma função de public');
 
 create table public.probe_future_table (id int);
 select is(

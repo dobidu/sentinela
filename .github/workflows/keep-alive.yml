@@ -1,0 +1,36 @@
+name: Keep-alive
+
+# O free tier do Supabase pausa o projeto após ~7 dias sem atividade.
+# Este workflow chama a RPC pública `ping` a cada 3 dias. Usa só a publishable
+# key (pública por design, guardada como variável de repositório), sem secrets.
+# Atenção: o GitHub desativa workflows agendados após 60 dias sem commit no repo.
+
+on:
+  schedule:
+    - cron: '17 9 */3 * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    name: Ping Supabase
+    if: github.repository == 'dobidu/sentinela'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 \
+            -X POST "${SUPABASE_URL}/rest/v1/rpc/ping" \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}')" || status="000"
+          echo "HTTP ${status}"
+          if [ "${status}" != "200" ]; then
+            echo "::error::Supabase não respondeu ao ping (HTTP ${status}). Projeto pausado? Restaurar no dashboard do Supabase e rodar de novo o job Deploy database do último run de main."
+            exit 1
+          fi

@@ -12,3 +12,7 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+    # A Supabase CLI é atualizada à mão: a versão do package.json precisa casar
+    # com `version:` do supabase/setup-cli no ci.yml (checado no job database).
+    ignore:
+      - dependency-name: supabase
