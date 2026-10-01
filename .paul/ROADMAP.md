@@ -14,14 +14,14 @@ Sistema de enfrentamento à subnotificação de arboviroses. Cidadãos e agentes
 
 **v0.1 MVP — Relato, Agregação e Dashboard** (v0.1.0)
 Status: In progress
-Phases: 0 of 5 complete
+Phases: 1 of 5 complete (20%)
 
 ## Phases
 
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
-| 1 | Fundação | 2/3 (01-01 ✓, 01-02 ✓, 01-03 planning) | In progress | - |
-| 2 | Relato do cidadão | TBD | Not started | - |
+| 1 | Fundação | 3/3 | ✅ Complete | 2026-10-01 |
+| 2 | Relato do cidadão | TBD | 🔵 Next | - |
 | 3 | Agregação em áreas de risco | TBD | Not started | - |
 | 4 | Dashboard de vigilância | TBD | Not started | - |
 | 5 | Validação e entrega acadêmica | TBD | Not started | - |
@@ -31,10 +31,11 @@ Phases: 0 of 5 complete
 ### Phase 1: Fundação
 **Goal:** Repositório executável e reprodutível — app Next.js com tooling, CI verde, schema PostGIS multi-município e deploy em nuvem.
 **Depends on:** nada
+**Status:** ✅ Complete (2026-10-01; planos executados em 2026-09-24)
 **Plans:**
 - 01-01 ✓ — Scaffold Next.js + TS + Vitest/ESLint + pipeline GitHub Actions (2026-09-24)
 - 01-02 ✓ — Supabase local + migrations PostGIS (6 entidades + Municipality) + RLS base + checagem de migration no CI (2026-09-24)
-- 01-03 — Deploy Vercel + projeto Supabase gerenciado + variáveis de ambiente
+- 01-03 ✓ — Deploy: Supabase sa-east-1 + CD de migrations, Vercel gru1 com Deployment Checks, branch protection (2026-09-24)
 
 ### Phase 2: Relato do cidadão (Feature 1)
 **Goal:** Cidadão relata foco (foto + GPS + tipo de criadouro) em < 60s e ≤ 3 telas, sem cadastro, funcionando offline.
@@ -62,4 +63,4 @@ Phases: 0 of 5 complete
 - **Pós-MVP** — Análise de necessidade de integração com e-SUS VS / SINAN
 
 ---
-*Roadmap created: 2026-09-10 — phases defined: 2026-09-24*
+*Roadmap created: 2026-09-10 — phases defined: 2026-09-24 — Phase 1 complete: 2026-10-01*

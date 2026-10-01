@@ -8,29 +8,30 @@ about: "sentinela"
 
 ## Project Reference
 
-See: .paul/PROJECT.md (updated 2026-09-24)
+See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 1 (Fundação) — 01-03 aplicado, aguardando UNIFY (último plano da fase)
+**Current focus:** Phase 2 (Relato do cidadão) — pronta para planejar
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
-Phase: 1 of 5 (Fundação) — In progress
-Plan: 01-03 applied, awaiting UNIFY
-Status: APPLY complete, ready for UNIFY
-Last activity: 2026-09-24 — APPLY 01-03 concluído; produção no ar (https://sentinela-sigma-eosin.vercel.app)
+Phase: 2 of 5 (Relato do cidadão) — Not started
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-10-01 — UNIFY 01-03 concluído; Fase 1 completa, transição para Fase 2
 
 Progress:
-- Milestone: [█░░░░░░░░░] ~13% (2 de ~15 planos estimados)
-- Phase 1: [███████░░░] 67% (2/3 planos)
+- Milestone: [██░░░░░░░░] 20% (1 de 5 fases; 3 de ~15 planos estimados)
+- Phase 1: [██████████] 100% (3/3 planos) ✅
+- Phase 2: [░░░░░░░░░░] 0%
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○     [Applied, ready for UNIFY]
+  ○        ○        ○     [Phase 1 complete — ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -68,9 +69,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Análise de necessidade de integração e-SUS VS / SINAN | Init | M | Pós-MVP |
 | Política de blur de rosto/placa nas fotos | Init | M | Antes de qualquer exposição pública de imagem |
 | Custo de storage de imagem no free tier | Init | S | Ao definir compressão client-side |
-| Branch protection exigindo CI em `main` | Audit 01-01 | S | Plano 01-03 ou entrada de colaborador |
 | SAST / scan de vulnerabilidades | Audit 01-01 | S | Fase 2 (fotos/GPS) |
-| README: seções "Status" e "Roadmap" desatualizadas | UNIFY 01-01 | S | Plano 01-03 (deploy) ou fase 5 |
 | ESLint 10 (pnpm marca 9 como deprecated) vs. eslint-config-next 16 | UNIFY 01-01 | S | Quando Dependabot propuser |
 | Colunas de auditoria / histórico de status em report | Audit 01-02 | M | Obrigatório junto do 1º caminho de escrita (fase 2/3) |
 | CI checando imutabilidade de migrations | Audit 01-02 | S | Entrada de colaborador |
@@ -80,6 +79,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Keep-alive p/ pausa do free tier Supabase | Audit 01-03 | S | Fase 5 |
 | Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
 | anon não lê `municipality` — formulário de relato precisa de lista/resolução por ponto (RPC) | UNIFY 01-02 | S | Fase 2 |
+| Roll da secret key `default` do Supabase (4 chars expostos, prefixo neste arquivo; key não usada) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
+| Dependabot: bump da CLI Supabase exige sincronizar `version:` do setup-cli (PR #4 barrado); PRs #2 (@types/node 26) e #3 (TS 6) major abertos | UNIFY 01-03 | S | Início da fase 2 |
+| Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
 
 ### Blockers/Concerns
 
@@ -98,27 +100,18 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-09-24
-Stopped at: APPLY 01-03 concluído (commits b599cbb, ad5a310, bfa880c; CI runs 36045316723 e seguinte verdes)
-Next action: /paul:unify .paul/phases/01-fundacao/01-03-PLAN.md → transição da Fase 1
-Resume file: .paul/phases/01-fundacao/01-03-PLAN.md
-APPLY log 01-03 (insumo p/ UNIFY):
-- Supabase `sentinela` ref ftibuibtjgqxwthwvthf, sa-east-1, org "dobidu's Org"; migrations 2/2, seed não aplicado, municipality=0, anon_grants=0, auth_write=0, tabelas sem RLS=0, advisors security limpo; REST anon → 42501
-- Signup: fechado via Management API (PATCH só disable_signup) — DESVIO do plano (`config push` enviaria config local inteira, ex. site_url 127.0.0.1); local config.toml enable_signup=false; site_url remoto = URL de produção
-- Vercel: projeto sentinela (dobidus-projects), gru1, gitForkProtection=true, env públicas em production+preview (preview via REST API — CLI exigia branch); domínio sentinela-sigma-eosin.vercel.app
-- Human actions: supabase login (TTY: terminal próprio, opção A); instalar/configurar app Vercel no GitHub; Deployment Checks no dashboard (sem API)
-- GitHub: environment production (só main) com secret SUPABASE_DB_URL + var SUPABASE_PROJECT_REF; secret scanning + push protection on; branch protection (2 checks, sem force-push/deleção, enforce_admins=false)
-- deploy-db: setup-cli v3.0.1 por SHA, versão 2.117.0 sincronizada (check testado com drift); log sem URL/senha; "Remote database is up to date"
-- Gate de produção: deployment ad5a310 mostrou "no checks configured" (checks recém-configurados); verificado com commit vazio bfa880c — alias ficou no deploy anterior durante o CI e moveu às 19:28:12Z, 11s após Deploy database (19:28:01Z)
-- Incidente menor: listagem de api-keys expôs 4 chars aleatórios da secret key `default` (sb_secret_rA8_…); recomendado roll (não usada)
-- README: Status/Roadmap corrigidos (exceção declarada) + seção Deploy
+Last session: 2026-10-01
+Stopped at: Phase 1 complete (UNIFY 01-03 + transição), ready to plan Phase 2
+Next action: /paul:plan para Phase 2 (Relato do cidadão)
+Resume file: .paul/ROADMAP.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
-- MVP restrito às features 1 + 3 + 5 (relato do cidadão, agregação em áreas de risco, dashboard); features 2 e 4 são fase 2
+- MVP restrito às features 1 + 3 + 5; features 2 e 4 são v0.2
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
-- CI/CD entra na fase 1; entrega acadêmica (artigo + repositório documentado) deve virar fase própria
-- Scaffold Next.js + CI no ar desde 2026-09-24 (01-01); schema PostGIS + RLS + pgTAP desde 2026-09-24 (01-02)
+- Produção: https://sentinela-sigma-eosin.vercel.app (Supabase ref ftibuibtjgqxwthwvthf, sa-east-1; Vercel gru1). Fluxo push main → CI → Deploy database → Vercel (Deployment Checks)
+- Fase 2 precisa, antes do 1º caminho de escrita: RPC/policy de insert anônimo + rate limit por `reporter_token_hash` + histórico/auditoria de status + GRANT EXECUTE explícito; previews hoje apontam para o banco de produção
+- Handoff de apresentação em .paul/handoffs/HANDOFF-apresentacao-2026-10-01.md (para slides; não é contexto de loop)
 
 ---
 *STATE.md — Updated after every significant action*

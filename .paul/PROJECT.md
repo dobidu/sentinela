@@ -20,8 +20,8 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 |-----------|-------|
 | Type | Application |
 | Version | 0.0.0 |
-| Status | Fase 1 (Fundação) em andamento |
-| Last Updated | 2026-09-24 |
+| Status | Fase 1 (Fundação) completa; Fase 2 (Relato do cidadão) a planejar |
+| Last Updated | 2026-10-01 |
 
 ## Requirements
 
@@ -36,10 +36,15 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 **Fatia mínima (MVP):** features 1 + 3 + 5 — relato do cidadão, agregação em áreas de risco, dashboard/mapa.
 
 ### Validated (Shipped)
-None yet.
+- ✓ Repositório reprodutível: Next.js 16 + TS strict + Vitest, CI (lint/typecheck/test/build) com actions por SHA — Phase 1
+- ✓ Schema PostGIS multi-município (6 entidades) com RLS deny-by-default e 87 testes pgTAP — Phase 1
+- ✓ CI/CD desde o início: migrations via CD (environment production), produção só com CI verde, `main` protegida — Phase 1
+- ✓ Deploy em nuvem gerenciada no Brasil (Supabase sa-east-1, Vercel gru1) — Phase 1
 
 ### Active (In Progress)
-- Fundação: scaffold + CI (01-01 ✓), schema PostGIS + RLS (01-02 ✓), deploy (01-03)
+- Fase 2 — Relato do cidadão (feature 1): PWA anônimo, foto + GPS + tipo, fila offline
+- [ ] 1º caminho de escrita anônimo com rate limit por `reporter_token_hash` + histórico/auditoria de status (obrigatório, Audit 01-02)
+- [ ] Previews sem escrita em produção ou banco de staging antes de escrita na fase 2 (Audit 01-03)
 
 ### Planned (Next)
 - MVP: relato anônimo (PWA) + job de agregação PostGIS + dashboard de vigilância
@@ -98,6 +103,12 @@ Sistema greenfield. Multi-município desde o schema. PostGIS para agregação es
 | Grid ~100m na camada pública | Mitigação LGPD para geolocalização de terceiros (confirmado pelo usuário em 2026-09-24) | 2026-09-10 | Active |
 | Integração e-SUS/SINAN fora do MVP | Prazo de 60h; dependência institucional | 2026-09-10 | Active |
 | CI/CD desde o início | Entrega acadêmica exige repositório bem documentado e reprodutível | 2026-09-10 | Active |
+| `reporter_token` só como hash SHA-256; `anon` sem privilégio até a fase 2 | Minimização LGPD; escrita anônima entra projetada com rate limit | 2026-09-24 | Active |
+| Tenancy por FK composta `(x_id, municipality_id)`; cross-município só `service_role` | Isolamento por município provado em teste, sem trigger | 2026-09-24 | Active |
+| Supabase sa-east-1 + Vercel gru1 | Dado de cidadão brasileiro fica no Brasil | 2026-09-24 | Active |
+| CD de DB só com `SUPABASE_DB_URL` (escopo projeto); job sem deps npm | Repo público: nada com acesso à conta no CI | 2026-09-24 | Active |
+| Produção só com CI verde (Vercel Deployment Checks); signup público fechado | Gate real de qualidade; staff criado por admin | 2026-09-24 | Active |
+| App e migrations publicam em paralelo → expand/contract; falha → forward-fix | Sem orquestração de release no MVP | 2026-09-24 | Active |
 
 ## Data Model
 
@@ -142,8 +153,9 @@ Implementado em `supabase/migrations/` (plano 01-02). Toda tabela de domínio ca
 | Resource | URL |
 |----------|-----|
 | Repository | https://github.com/dobidu/sentinela |
-| Production | TBD |
+| Production | https://sentinela-sigma-eosin.vercel.app |
 | Documentation | TBD |
 
 ---
 *Created: 2026-09-10*
+*Last updated: 2026-10-01 after Phase 1*
