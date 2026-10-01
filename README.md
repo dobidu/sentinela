@@ -257,6 +257,8 @@ Reenviar com o **mesmo token e a mesma foto** é seguro: devolve o mesmo `id` se
 
 Outras RPCs públicas: `resolve_municipality(p_lon, p_lat)` → `{id, name}` do município atendido no ponto (sem o limite geográfico); `ping()` → usada pelo keep-alive. Todo relato e toda mudança de status ficam em `report_status_event`, que é append-only.
 
+**Advisor de segurança — exceções aceitas:** `submit_report` e `resolve_municipality` são `SECURITY DEFINER` executáveis por `anon`/`authenticated` (lints 0028/0029) **de propósito**: o cidadão não tem privilégio em nenhuma tabela, e essas funções são o único caminho, com validação e limites próprios. Funções usadas só dentro de policies (`can_upload_report_photo`, `current_app_role`, `current_municipality_id`) ficam no schema `private`, que não é exposto pela API. Qualquer outro aviso do advisor é regressão.
+
 ### Keep-alive
 
 O free tier do Supabase pausa o projeto depois de ~7 dias sem atividade, e o `Deploy database` falha enquanto o projeto está pausado. O workflow [`keep-alive.yml`](.github/workflows/keep-alive.yml) chama `rpc/ping` a cada 3 dias com a publishable key (variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`; não são secrets). Se falhar, o GitHub avisa por e-mail: restaure o projeto no dashboard e rode de novo o `Deploy database`. O GitHub desativa workflows agendados em repositórios sem commit há 60 dias.

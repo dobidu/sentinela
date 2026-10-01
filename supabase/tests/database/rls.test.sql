@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(48);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (independentes do seed): dados em A e em B
@@ -53,7 +53,7 @@ select is(
   0, 'toda tabela de public tem RLS habilitado');
 
 -- ---------------------------------------------------------------------------
--- Privilégios (6)
+-- Privilégios (7)
 -- ---------------------------------------------------------------------------
 select is(
   (select count(*)::int from information_schema.role_table_grants
@@ -71,11 +71,18 @@ select is(
     where p.pronamespace = 'public'::regnamespace
       and has_function_privilege('anon', p.oid, 'execute')),
   array[
-    'can_upload_report_photo()',
     'ping()',
     'resolve_municipality(double precision,double precision)',
     'submit_report(uuid,double precision,double precision,breeding_site_type,text,text)'
-  ], 'anon executa exatamente as 4 funções do caminho de relato');
+  ], 'anon executa exatamente as 3 funções públicas do caminho de relato');
+
+-- Helpers de policy ficam em `private` (não exposto pela API REST).
+select is(
+  (select array_agg(p.oid::regprocedure::text order by p.oid::regprocedure::text) from pg_proc p
+    where p.pronamespace = 'private'::regnamespace
+      and has_function_privilege('anon', p.oid, 'execute')),
+  array['private.can_upload_report_photo()'],
+  'em private, anon executa só can_upload_report_photo (usada pela policy de storage)');
 
 select is(
   (select count(*)::int from pg_proc p
@@ -210,14 +217,14 @@ reset role;
 -- ---------------------------------------------------------------------------
 -- helpers (5)
 -- ---------------------------------------------------------------------------
-select ok(has_function_privilege('authenticated', 'public.current_municipality_id()', 'execute'),
+select ok(has_function_privilege('authenticated', 'private.current_municipality_id()', 'execute'),
   'authenticated executa current_municipality_id');
-select ok(has_function_privilege('authenticated', 'public.current_app_role()', 'execute'),
+select ok(has_function_privilege('authenticated', 'private.current_app_role()', 'execute'),
   'authenticated executa current_app_role');
 select ok(not has_function_privilege('authenticated', 'public.report_enforce_boundary()', 'execute'),
   'authenticated não executa a função de trigger');
 select is(
-  (select p.proconfig from pg_proc p where p.oid = 'public.current_municipality_id()'::regprocedure),
+  (select p.proconfig from pg_proc p where p.oid = 'private.current_municipality_id()'::regprocedure),
   array['search_path=""'], 'current_municipality_id tem search_path fixo');
 select is(
   (select p.proconfig from pg_proc p where p.oid = 'public.report_enforce_boundary()'::regprocedure),

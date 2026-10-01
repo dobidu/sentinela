@@ -316,12 +316,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_upload_report_photo: { Args: never; Returns: boolean }
-      current_app_role: {
-        Args: never
-        Returns: Database["public"]["Enums"]["app_role"]
-      }
-      current_municipality_id: { Args: never; Returns: string }
       ping: { Args: never; Returns: number }
       resolve_municipality: {
         Args: { p_lat: number; p_lon: number }

@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(51);
+select plan(52);
 
 -- Pontos conferidos contra a malha do IBGE:
 --   JP centro (-34.8641, -7.1195) só em João Pessoa; Cabedelo (-34.8330, -6.9810);
@@ -299,7 +299,7 @@ select throws_ok(
   '23503', null, 'relato com histórico não é apagado (RESTRICT)');
 
 -- ---------------------------------------------------------------------------
--- Premissas de privilégio das funções (2)
+-- Premissas de privilégio das funções (3)
 -- ---------------------------------------------------------------------------
 select ok(
   (select bool_and(p.prosecdef and pg_get_userbyid(p.proowner) = 'postgres'
@@ -307,16 +307,19 @@ select ok(
      from pg_proc p
     where p.oid in ('public.submit_report(uuid, double precision, double precision, public.breeding_site_type, text, text)'::regprocedure,
                     'public.resolve_municipality(double precision, double precision)'::regprocedure,
-                    'public.ping()'::regprocedure,
-                    'public.can_upload_report_photo()'::regprocedure)),
-  'RPCs são SECURITY DEFINER de postgres com search_path vazio');
+                    'private.can_upload_report_photo()'::regprocedure)),
+  'submit_report, resolve_municipality e private.can_upload_report_photo são SECURITY DEFINER de postgres com search_path vazio');
 
-select is(public.ping(), 1, 'ping toca o banco e devolve 1');
+select ok(
+  (select not prosecdef from pg_proc where oid = 'public.ping()'::regprocedure),
+  'ping é SECURITY INVOKER');
+
+select is(public.ping(), 1, 'ping devolve 1');
 
 -- ---------------------------------------------------------------------------
 -- Teto de upload (5) — por último: altera contagens do bucket
 -- ---------------------------------------------------------------------------
-select ok(public.can_upload_report_photo(), 'abaixo do teto, upload permitido');
+select ok(private.can_upload_report_photo(), 'abaixo do teto, upload permitido');
 
 insert into storage.objects (bucket_id, name)
 select 'report-photos', 'cap-' || g
@@ -341,7 +344,7 @@ insert into storage.objects (bucket_id, name, created_at)
 select 'report-photos', 'old-' || g, now() - interval '2 days'
   from generate_series(1, 3000 - (select count(*)::int from storage.objects where bucket_id = 'report-photos')) g;
 
-select ok(not public.can_upload_report_photo(), 'teto total de 3000 objetos atingido');
+select ok(not private.can_upload_report_photo(), 'teto total de 3000 objetos atingido');
 
 set local role anon;
 select throws_ok(
