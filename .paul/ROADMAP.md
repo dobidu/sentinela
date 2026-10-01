@@ -21,7 +21,7 @@ Phases: 1 of 5 complete (20%)
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
 | 1 | Fundação | 3/3 | ✅ Complete | 2026-10-01 |
-| 2 | Relato do cidadão | TBD | 🔵 Next | - |
+| 2 | Relato do cidadão | 0/3 (02-01 planning) | Planning | - |
 | 3 | Agregação em áreas de risco | TBD | Not started | - |
 | 4 | Dashboard de vigilância | TBD | Not started | - |
 | 5 | Validação e entrega acadêmica | TBD | Not started | - |
@@ -41,6 +41,10 @@ Phases: 1 of 5 complete (20%)
 **Goal:** Cidadão relata foco (foto + GPS + tipo de criadouro) em < 60s e ≤ 3 telas, sem cadastro, funcionando offline.
 **Depends on:** Phase 1
 **Escopo:** PWA instalável, captura de foto com compressão client-side, `reporter_token` device-scoped, fila offline (service worker) com 100% de entrega ao reconectar, upload para bucket privado.
+**Plans:**
+- 02-01 — Caminho de escrita anônimo no banco (RPC `submit_report`, rate limit, histórico de status, bucket privado, JP + Cabedelo reais) + keep-alive + Dependabot
+- 02-02 — Formulário de relato online (cliente Supabase, foto comprimida, GPS, ≤3 telas; previews sem escrita)
+- 02-03 — PWA + fila offline (manifest, service worker, IndexedDB, reenvio)
 
 ### Phase 3: Agregação em áreas de risco (Feature 3)
 **Goal:** Job PostGIS que materializa `RiskArea` a partir dos relatos em < 30s para 10k relatos.

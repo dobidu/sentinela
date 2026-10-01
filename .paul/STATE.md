@@ -11,15 +11,15 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 2 (Relato do cidadão) — pronta para planejar
+**Current focus:** Phase 2 (Relato do cidadão) — 02-01 planejado e auditado, aguardando APPLY
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
-Phase: 2 of 5 (Relato do cidadão) — Not started
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-01 — UNIFY 01-03 concluído; Fase 1 completa, transição para Fase 2
+Phase: 2 of 5 (Relato do cidadão) — Planning
+Plan: 02-01 created + audited, awaiting approval
+Status: PLAN audited, ready for APPLY
+Last activity: 2026-10-01 — Audit de 02-01 (4 must-have, 7 recomendados aplicados; 6 deferidos)
 
 Progress:
 - Milestone: [██░░░░░░░░] 20% (1 de 5 fases; 3 de ~15 planos estimados)
@@ -31,7 +31,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ○        ○        ○     [Phase 1 complete — ready for next PLAN]
+  ✓        ○        ○     [Plan created, awaiting approval]
 ```
 
 ## Accumulated Context
@@ -57,6 +57,11 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-09-24: Modelo refinado — `photo_url`→`photo_path`, `User`→`profile` (1:1 auth.users), `municipality_id` em toda tabela | Plan 01-02 | PROJECT.md Data Model atualizado |
 | 2026-09-24: EXECUTE de PUBLIC revogado globalmente p/ funções criadas por postgres; toda função nova exige GRANT explícito | Plan 01-02 | Fases 2/3 (RPCs, extensões) |
 | 2026-09-24: Deploy — Supabase sa-east-1, Vercel Git integration (gru1), CD de migrations no Actions (environment production), branch protection com checks | Plan 01-03 | Fluxo push→CI→db push→app |
+| 2026-10-01: Enterprise audit performed on .paul/phases/02-relato-cidadao/02-01-PLAN.md. Applied 4 must-have, 7 strongly-recommended upgrades. Deferred 6. Verdict: conditionally acceptable | Phase 2 | Plan strengthened for enterprise standards |
+| 2026-10-01: Fase 2 em 3 planos — 02-01 infra+escrita no banco, 02-02 formulário online, 02-03 PWA+offline | Phase 2 | Planos ≤3 tasks |
+| 2026-10-01: Foto via Storage direto (publishable key, policy só INSERT) + RPC `submit_report` que valida o objeto; nenhuma secret key na Vercel | Plan 02-01 | Mantém least privilege do 01-03 |
+| 2026-10-01: Previews da Vercel sem escrita (env Supabase removida do preview no 02-02) | Plan 02-01 | Sem staging no MVP |
+| 2026-10-01: Produção com João Pessoa + Cabedelo (malha IBGE máxima embutida em migration) | Plan 02-01 | Seed perde os retângulos sintéticos |
 | 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-03-PLAN.md. Applied 3 must-have, 7 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
 | 2026-09-24: CD de DB usa só `SUPABASE_DB_URL` (session pooler, escopo projeto) — sem access token de conta no GitHub; signup público desabilitado | Plan 01-03 | Least privilege |
 | 2026-09-24: Enterprise audit performed on .paul/phases/01-fundacao/01-02-PLAN.md. Applied 3 must-have, 7 strongly-recommended upgrades. Deferred 5. Verdict: conditionally acceptable | Phase 1 | Plan strengthened for enterprise standards |
@@ -82,6 +87,11 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Roll da secret key `default` do Supabase (4 chars do prefixo aleatório expostos no histórico git; key não usada — inutiliza o resíduo) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
 | Dependabot: bump da CLI Supabase exige sincronizar `version:` do setup-cli (PR #4 barrado); PRs #2 (@types/node 26) e #3 (TS 6) major abertos | UNIFY 01-03 | S | Início da fase 2 |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
+| Limpeza de fotos órfãs no bucket (job service_role via Storage API) | Audit 02-01 | S | Fase 5 ou teto de upload a 50% |
+| Rate limit por IP (hash com sal rotativo, LGPD) | Audit 02-01 | M | Se houver abuso observado |
+| Máquina de estados de status do relato | Audit 02-01 | S | v0.2 (triagem) |
+| Alerta quando tetos de upload/relato disparam | Audit 02-01 | S | Feature 4 (alertas) |
+| Conferência manual mensal de security updates da Supabase CLI (ignorada no Dependabot) | Audit 02-01 | S | Mensal |
 
 ### Blockers/Concerns
 
@@ -101,9 +111,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-10-01
-Stopped at: Phase 1 complete (UNIFY 01-03 + transição), ready to plan Phase 2
-Next action: /paul:plan para Phase 2 (Relato do cidadão)
-Resume file: .paul/ROADMAP.md
+Stopped at: Plan 02-01 created
+Next action: /paul:apply .paul/phases/02-relato-cidadao/02-01-PLAN.md
+Resume file: .paul/phases/02-relato-cidadao/02-01-PLAN.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
