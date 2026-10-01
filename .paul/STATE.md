@@ -76,10 +76,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Política de retenção de relatos/fotos (LGPD) | Audit 01-02 | M | Antes da validação em campo (fase 5) |
 | Dado pessoal em `description` livre | Audit 01-02 | S | Fase 2 (UI) |
 | Banco de staging separado p/ previews | Audit 01-03 | M | Fase 2 (previews com escrita) |
-| Keep-alive p/ pausa do free tier Supabase | Audit 01-03 | S | Fase 5 |
+| Keep-alive p/ pausa do free tier Supabase — **materializado 2026-10-01**: projeto pausou após 7 dias sem atividade, `Deploy database` do commit 185b85d falhou (run 36906443389, `tenant/user ... not found`). Proposta: workflow cron no Actions (~a cada 3 dias) com ping leve ao banco/REST, sem dados em log | Audit 01-03 | S | **Início da Fase 2 (antecipado da Fase 5)** |
 | Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
 | anon não lê `municipality` — formulário de relato precisa de lista/resolução por ponto (RPC) | UNIFY 01-02 | S | Fase 2 |
-| Roll da secret key `default` do Supabase (4 chars expostos, prefixo neste arquivo; key não usada) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
+| Roll da secret key `default` do Supabase (4 chars do prefixo aleatório expostos no histórico git; key não usada — inutiliza o resíduo) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
 | Dependabot: bump da CLI Supabase exige sincronizar `version:` do setup-cli (PR #4 barrado); PRs #2 (@types/node 26) e #3 (TS 6) major abertos | UNIFY 01-03 | S | Início da fase 2 |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
 
@@ -111,6 +111,7 @@ Resume context:
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
 - Produção: https://sentinela-sigma-eosin.vercel.app (Supabase ref ftibuibtjgqxwthwvthf, sa-east-1; Vercel gru1). Fluxo push main → CI → Deploy database → Vercel (Deployment Checks)
 - Fase 2 precisa, antes do 1º caminho de escrita: RPC/policy de insert anônimo + rate limit por `reporter_token_hash` + histórico/auditoria de status + GRANT EXECUTE explícito; previews hoje apontam para o banco de produção
+- 2026-10-01: Supabase pausado (free tier, 7 dias sem atividade) → restore manual + rerun do `Deploy database` (run 36906443389); keep-alive antecipado para o início da Fase 2
 - Handoff de apresentação em .paul/handoffs/HANDOFF-apresentacao-2026-10-01.md (para slides; não é contexto de loop)
 
 ---

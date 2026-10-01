@@ -128,7 +128,7 @@ Infra fora do repo: projeto Supabase, projeto Vercel (`dobidus-projects/sentinel
 |-------|------------|
 | Primeiro deployment (`ad5a310`) mostrou "no checks configured" — checks recém-configurados | Verificado com commit vazio `bfa880c`; gate comprovado |
 | `supabase login` exige TTY | Usuário rodou em terminal próprio |
-| Listagem de api-keys exibiu 4 chars aleatórios da secret key `default` (`sb_secret_rA8_…`, prefixo também está no STATE.md versionado) | Key não usada em lugar nenhum; **roll recomendado** — deferido (ver abaixo) |
+| Listagem de api-keys exibiu 4 chars aleatórios da secret key `default` (4 chars do prefixo aleatório; aparecem no histórico git do STATE.md) | Key não usada em lugar nenhum; **roll recomendado** — deferido (ver abaixo) |
 
 ### Deferred Items
 
