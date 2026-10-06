@@ -11,15 +11,15 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 2 (Relato do cidadão) — 02-01 planejado e auditado, aguardando APPLY
+**Current focus:** Phase 2 (Relato do cidadão) — 02-01 aplicado, aguardando UNIFY
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
-Phase: 2 of 5 (Relato do cidadão) — Planning
-Plan: 02-01 created + audited, awaiting approval
-Status: PLAN audited, ready for APPLY
-Last activity: 2026-10-01 — Audit de 02-01 (4 must-have, 7 recomendados aplicados; 6 deferidos)
+Phase: 2 of 5 (Relato do cidadão) — In progress
+Plan: 02-01 applied, awaiting UNIFY
+Status: APPLY complete, ready for UNIFY
+Last activity: 2026-10-01 — APPLY 02-01 concluído; escrita anônima no ar em produção
 
 Progress:
 - Milestone: [██░░░░░░░░] 20% (1 de 5 fases; 3 de ~15 planos estimados)
@@ -31,7 +31,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ○        ○     [Plan created, awaiting approval]
+  ✓        ✓        ○     [Applied, ready for UNIFY]
 ```
 
 ## Accumulated Context
@@ -57,6 +57,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-09-24: Modelo refinado — `photo_url`→`photo_path`, `User`→`profile` (1:1 auth.users), `municipality_id` em toda tabela | Plan 01-02 | PROJECT.md Data Model atualizado |
 | 2026-09-24: EXECUTE de PUBLIC revogado globalmente p/ funções criadas por postgres; toda função nova exige GRANT explícito | Plan 01-02 | Fases 2/3 (RPCs, extensões) |
 | 2026-09-24: Deploy — Supabase sa-east-1, Vercel Git integration (gru1), CD de migrations no Actions (environment production), branch protection com checks | Plan 01-03 | Fluxo push→CI→db push→app |
+| 2026-10-01: Helpers de policy no schema `private` (fora da API REST); `ping` INVOKER; `submit_report`/`resolve_municipality` são as únicas exceções aceitas do advisor (lints 0028/0029) | Plan 02-01 | Toda função nova: API pública em public, helper em private |
 | 2026-10-01: Enterprise audit performed on .paul/phases/02-relato-cidadao/02-01-PLAN.md. Applied 4 must-have, 7 strongly-recommended upgrades. Deferred 6. Verdict: conditionally acceptable | Phase 2 | Plan strengthened for enterprise standards |
 | 2026-10-01: Fase 2 em 3 planos — 02-01 infra+escrita no banco, 02-02 formulário online, 02-03 PWA+offline | Phase 2 | Planos ≤3 tasks |
 | 2026-10-01: Foto via Storage direto (publishable key, policy só INSERT) + RPC `submit_report` que valida o objeto; nenhuma secret key na Vercel | Plan 02-01 | Mantém least privilege do 01-03 |
@@ -87,6 +88,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Roll da secret key `default` do Supabase (4 chars do prefixo aleatório expostos no histórico git; key não usada — inutiliza o resíduo) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
 | Dependabot: bump da CLI Supabase exige sincronizar `version:` do setup-cli (PR #4 barrado); PRs #2 (@types/node 26) e #3 (TS 6) major abertos | UNIFY 01-03 | S | Início da fase 2 |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
+| **2026-10-06: projeto Supabase INACTIVE de novo** apesar de keep-alive agendado verde em 10-04 (run 37210625181, HTTP 200). Hipóteses não verificadas: RPC `select 1` (INVOKER, sem tocar tabela) não conta como atividade; janela < 7 dias; intervalo de 3 dias longo. Restaurar e investigar | UNIFY 02-01 | S | Antes do 02-02 |
+| Advisor do CI (CLI 2.117) não tem lints 0028/0029 do advisor de produção — atualizar CLI (≥2.119) com bump sincronizado | APPLY 02-01 | S | 02-02 |
 | Limpeza de fotos órfãs no bucket (job service_role via Storage API) | Audit 02-01 | S | Fase 5 ou teto de upload a 50% |
 | Rate limit por IP (hash com sal rotativo, LGPD) | Audit 02-01 | M | Se houver abuso observado |
 | Máquina de estados de status do relato | Audit 02-01 | S | v0.2 (triagem) |
@@ -111,9 +114,17 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-10-01
-Stopped at: Plan 02-01 created
-Next action: /paul:apply .paul/phases/02-relato-cidadao/02-01-PLAN.md
+Stopped at: APPLY 02-01 concluído (commits 9cc581b, 8a7b726, a286155; CI 36917305271 e 36918302223 verdes)
+Next action: /paul:unify .paul/phases/02-relato-cidadao/02-01-PLAN.md
 Resume file: .paul/phases/02-relato-cidadao/02-01-PLAN.md
+APPLY log 02-01 (insumo p/ UNIFY):
+- Task 1 PASS: migration 20261001185320_report_write_path; JP 272 pts / Cabedelo 127 pts válidos; db:reset 2×; lint/advisors locais limpos; tipos determinísticos
+- Task 2 PASS: pgTAP 139 → 141 após fix (schema 41, rls 48, report_write 52); fault injection (limites 1000/h + policy SELECT anon) derrubou #11, #32, #33, #36; restaurado
+- Task 3 PASS: keep-alive.yml (actionlint v1.7.12), vars SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY, dependabot ignore supabase, README (escrita anônima, keep-alive, CLI)
+- BLOCKED temporário: Docker sem integração WSL → usuário ativou (29.7.2)
+- Desvios: schema.test.sql fixtures 'x.jpg'→x1..x7 (aprovado; boundary); idempotência antes de município/foto (replay > 1h); sem isfinite p/ float8 (between cobre NaN/Inf); teste de teto total usa storage.allow_delete_query na transação; policy de upload p/ anon+authenticated; keep-alive captura status em vez de --fail-with-body; SIRGAS 2000 gravado como 4326
+- Checkpoint: CD aplicou 1 migration; sondas prod ping 200, resolve JP/Cabedelo, PT404→404, PT422→422, REST anon report/report_status_event 401; bucket ok; 0 relatos, 0 objetos
+- Checkpoint issue (Spec): advisor de produção com lints 0028/0029 (ausentes no CLI 2.117) → Task 3b: migration 20261001195629_private_policy_helpers (schema private, ping INVOKER); prod advisor = 4 WARNs aceitos; keep-alive manual verde 2×
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
@@ -122,7 +133,7 @@ Resume context:
 - Produção: https://sentinela-sigma-eosin.vercel.app (Supabase ref ftibuibtjgqxwthwvthf, sa-east-1; Vercel gru1). Fluxo push main → CI → Deploy database → Vercel (Deployment Checks)
 - Fase 2 precisa, antes do 1º caminho de escrita: RPC/policy de insert anônimo + rate limit por `reporter_token_hash` + histórico/auditoria de status + GRANT EXECUTE explícito; previews hoje apontam para o banco de produção
 - 2026-10-01: Supabase pausado (free tier, 7 dias sem atividade) → restore manual + rerun do `Deploy database` (run 36906443389); keep-alive antecipado para o início da Fase 2
-- Handoff de apresentação em .paul/handoffs/HANDOFF-apresentacao-2026-10-01.md (para slides; não é contexto de loop)
+- Handoffs de apresentação: .paul/handoffs/HANDOFF-apresentacao-2026-10-01.md e HANDOFF-aula-2026-10-06.md (para slides; não são contexto de loop)
 
 ---
 *STATE.md — Updated after every significant action*

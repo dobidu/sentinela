@@ -21,7 +21,7 @@ status = "in_progress"
 plans_completed = 0
 
 [loop]
-position = "PLAN"
+position = "APPLY"
 plan = "02-01"
 plan_path = "phases/02-relato-cidadao/02-01-PLAN.md"
 
@@ -31,4 +31,4 @@ groom = true
 [stats]
 total_plans = 4
 total_phases = 5
-last_activity = "2026-10-01T19:00:00Z"
+last_activity = "2026-10-01T20:15:00Z"
