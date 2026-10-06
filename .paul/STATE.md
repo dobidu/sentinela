@@ -111,9 +111,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-10-06
-Stopped at: UNIFY 02-01 concluído (SUMMARY criado); Fase 2 em 1/3 planos
+Stopped at: Sessão pausada após UNIFY 02-01 (commit 9bca03f, CI verde); Fase 2 em 1/3 planos; Supabase ACTIVE_HEALTHY
 Next action: /paul:plan para 02-02 (formulário de relato online), com investigação/correção do keep-alive como 1ª task
-Resume file: .paul/phases/02-relato-cidadao/02-01-SUMMARY.md
+Resume file: .paul/HANDOFF-2026-10-06.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
