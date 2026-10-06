@@ -20,8 +20,8 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 |-----------|-------|
 | Type | Application |
 | Version | 0.0.0 |
-| Status | Fase 1 (Fundação) completa; Fase 2 (Relato do cidadão) a planejar |
-| Last Updated | 2026-10-01 |
+| Status | Fase 2 (Relato do cidadão) em andamento — 02-01 ✓ (escrita anônima no banco) |
+| Last Updated | 2026-10-06 |
 
 ## Requirements
 
@@ -43,7 +43,8 @@ Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em
 
 ### Active (In Progress)
 - Fase 2 — Relato do cidadão (feature 1): PWA anônimo, foto + GPS + tipo, fila offline
-- [ ] 1º caminho de escrita anônimo com rate limit por `reporter_token_hash` + histórico/auditoria de status (obrigatório, Audit 01-02)
+- [x] 1º caminho de escrita anônimo com rate limit por `reporter_token_hash` + histórico/auditoria de status (02-01)
+- [ ] Keep-alive efetivo do free tier (projeto pausou 2×; ver STATE)
 - [ ] Previews sem escrita em produção ou banco de staging antes de escrita na fase 2 (Audit 01-03)
 
 ### Planned (Next)

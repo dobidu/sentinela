@@ -11,27 +11,27 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 2 (Relato do cidadão) — 02-01 aplicado, aguardando UNIFY
+**Current focus:** Phase 2 (Relato do cidadão) — 02-01 fechado; próximo: 02-02 (formulário), começando pelo keep-alive
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 2 of 5 (Relato do cidadão) — In progress
-Plan: 02-01 applied, awaiting UNIFY
-Status: APPLY complete, ready for UNIFY
-Last activity: 2026-10-01 — APPLY 02-01 concluído; escrita anônima no ar em produção
+Plan: 02-01 complete (1/3)
+Status: Loop closed, ready for next PLAN (02-02)
+Last activity: 2026-10-06 — UNIFY 02-01 (SUMMARY); Supabase restaurado após 2ª pausa
 
 Progress:
-- Milestone: [██░░░░░░░░] 20% (1 de 5 fases; 3 de ~15 planos estimados)
+- Milestone: [██░░░░░░░░] ~25% (1 de 5 fases; 4 de ~15 planos estimados)
 - Phase 1: [██████████] 100% (3/3 planos) ✅
-- Phase 2: [░░░░░░░░░░] 0%
+- Phase 2: [███░░░░░░░] 33% (1/3 planos)
 
 ## Loop Position
 
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ○     [Applied, ready for UNIFY]
+  ✓        ✓        ✓     [Loop complete - ready for next PLAN]
 ```
 
 ## Accumulated Context
@@ -77,18 +77,15 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Custo de storage de imagem no free tier | Init | S | Ao definir compressão client-side |
 | SAST / scan de vulnerabilidades | Audit 01-01 | S | Fase 2 (fotos/GPS) |
 | ESLint 10 (pnpm marca 9 como deprecated) vs. eslint-config-next 16 | UNIFY 01-01 | S | Quando Dependabot propuser |
-| Colunas de auditoria / histórico de status em report | Audit 01-02 | M | Obrigatório junto do 1º caminho de escrita (fase 2/3) |
 | CI checando imutabilidade de migrations | Audit 01-02 | S | Entrada de colaborador |
 | Política de retenção de relatos/fotos (LGPD) | Audit 01-02 | M | Antes da validação em campo (fase 5) |
 | Dado pessoal em `description` livre | Audit 01-02 | S | Fase 2 (UI) |
 | Banco de staging separado p/ previews | Audit 01-03 | M | Fase 2 (previews com escrita) |
-| Keep-alive p/ pausa do free tier Supabase — **materializado 2026-10-01**: projeto pausou após 7 dias sem atividade, `Deploy database` do commit 185b85d falhou (run 36906443389, `tenant/user ... not found`). Proposta: workflow cron no Actions (~a cada 3 dias) com ping leve ao banco/REST, sem dados em log | Audit 01-03 | S | **Início da Fase 2 (antecipado da Fase 5)** |
 | Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
-| anon não lê `municipality` — formulário de relato precisa de lista/resolução por ponto (RPC) | UNIFY 01-02 | S | Fase 2 |
 | Roll da secret key `default` do Supabase (4 chars do prefixo aleatório expostos no histórico git; key não usada — inutiliza o resíduo) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
-| Dependabot: bump da CLI Supabase exige sincronizar `version:` do setup-cli (PR #4 barrado); PRs #2 (@types/node 26) e #3 (TS 6) major abertos | UNIFY 01-03 | S | Início da fase 2 |
+| PRs major do Dependabot abertos: #3 (TypeScript 6), #6 (@types/node 26) — avaliar | UNIFY 01-03 | S | 02-02 |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
-| **2026-10-06: projeto Supabase INACTIVE de novo** apesar de keep-alive agendado verde em 10-04 (run 37210625181, HTTP 200). Hipóteses não verificadas: RPC `select 1` (INVOKER, sem tocar tabela) não conta como atividade; janela < 7 dias; intervalo de 3 dias longo. Restaurar e investigar | UNIFY 02-01 | S | Antes do 02-02 |
+| **2026-10-06: projeto Supabase INACTIVE de novo** apesar de keep-alive agendado verde em 10-04 (run 37210625181, HTTP 200). Hipóteses não verificadas: RPC `select 1` (INVOKER, sem tocar tabela) não conta como atividade; janela < 7 dias; intervalo de 3 dias longo. Restaurado em 10-06 pelo usuário; **investigar como 1ª task do 02-02** (histórico: 1ª pausa 10-01 sem keep-alive) | UNIFY 02-01 | S | **1ª task do 02-02** |
 | Advisor do CI (CLI 2.117) não tem lints 0028/0029 do advisor de produção — atualizar CLI (≥2.119) com bump sincronizado | APPLY 02-01 | S | 02-02 |
 | Limpeza de fotos órfãs no bucket (job service_role via Storage API) | Audit 02-01 | S | Fase 5 ou teto de upload a 50% |
 | Rate limit por IP (hash com sal rotativo, LGPD) | Audit 02-01 | M | Se houver abuso observado |
@@ -113,27 +110,19 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-10-01
-Stopped at: APPLY 02-01 concluído (commits 9cc581b, 8a7b726, a286155; CI 36917305271 e 36918302223 verdes)
-Next action: /paul:unify .paul/phases/02-relato-cidadao/02-01-PLAN.md
-Resume file: .paul/phases/02-relato-cidadao/02-01-PLAN.md
-APPLY log 02-01 (insumo p/ UNIFY):
-- Task 1 PASS: migration 20261001185320_report_write_path; JP 272 pts / Cabedelo 127 pts válidos; db:reset 2×; lint/advisors locais limpos; tipos determinísticos
-- Task 2 PASS: pgTAP 139 → 141 após fix (schema 41, rls 48, report_write 52); fault injection (limites 1000/h + policy SELECT anon) derrubou #11, #32, #33, #36; restaurado
-- Task 3 PASS: keep-alive.yml (actionlint v1.7.12), vars SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY, dependabot ignore supabase, README (escrita anônima, keep-alive, CLI)
-- BLOCKED temporário: Docker sem integração WSL → usuário ativou (29.7.2)
-- Desvios: schema.test.sql fixtures 'x.jpg'→x1..x7 (aprovado; boundary); idempotência antes de município/foto (replay > 1h); sem isfinite p/ float8 (between cobre NaN/Inf); teste de teto total usa storage.allow_delete_query na transação; policy de upload p/ anon+authenticated; keep-alive captura status em vez de --fail-with-body; SIRGAS 2000 gravado como 4326
-- Checkpoint: CD aplicou 1 migration; sondas prod ping 200, resolve JP/Cabedelo, PT404→404, PT422→422, REST anon report/report_status_event 401; bucket ok; 0 relatos, 0 objetos
-- Checkpoint issue (Spec): advisor de produção com lints 0028/0029 (ausentes no CLI 2.117) → Task 3b: migration 20261001195629_private_policy_helpers (schema private, ping INVOKER); prod advisor = 4 WARNs aceitos; keep-alive manual verde 2×
+Last session: 2026-10-06
+Stopped at: UNIFY 02-01 concluído (SUMMARY criado); Fase 2 em 1/3 planos
+Next action: /paul:plan para 02-02 (formulário de relato online), com investigação/correção do keep-alive como 1ª task
+Resume file: .paul/phases/02-relato-cidadao/02-01-SUMMARY.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
 - MVP restrito às features 1 + 3 + 5; features 2 e 4 são v0.2
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
 - Produção: https://sentinela-sigma-eosin.vercel.app (Supabase ref ftibuibtjgqxwthwvthf, sa-east-1; Vercel gru1). Fluxo push main → CI → Deploy database → Vercel (Deployment Checks)
-- Fase 2 precisa, antes do 1º caminho de escrita: RPC/policy de insert anônimo + rate limit por `reporter_token_hash` + histórico/auditoria de status + GRANT EXECUTE explícito; previews hoje apontam para o banco de produção
-- 2026-10-01: Supabase pausado (free tier, 7 dias sem atividade) → restore manual + rerun do `Deploy database` (run 36906443389); keep-alive antecipado para o início da Fase 2
-- Handoffs de apresentação: .paul/handoffs/HANDOFF-apresentacao-2026-10-01.md e HANDOFF-aula-2026-10-06.md (para slides; não são contexto de loop)
+- Contrato de escrita anônima pronto (02-01): upload em report-photos → `submit_report`; erros PT422/404/409/429 (tabela no README); previews ainda com env Supabase (remover no 02-02)
+- Supabase pausou 2× (10-01 sem keep-alive; antes de 10-06 com keep-alive verde em 10-04). Restore só pelo usuário (classificador barra o agente); CLI não tem restore
+- Handoffs de apresentação em .paul/handoffs/ (apresentacao-2026-10-01, aula-2026-10-06, arquitetura-2026-10-06, slides-update-2026-10-06) — para slides; não são contexto de loop
 
 ---
 *STATE.md — Updated after every significant action*
