@@ -4,7 +4,7 @@
 
 **Sistema de relato e triagem de focos de arboviroses**, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
 
-> Status: **fase 1 — Fundação** (v0.0.0). App Next.js, CI/CD, schema PostGIS com RLS e deploy em nuvem (Vercel + Supabase, São Paulo). As features de relato, agregação e dashboard entram nas fases 2–4. Produção: https://sentinela-sigma-eosin.vercel.app
+> Status: **fase 2 — Relato do cidadão** (v0.0.0). Fase 1 (Fundação) concluída: app Next.js, CI/CD, schema PostGIS com RLS e deploy em nuvem (Vercel + Supabase, São Paulo). Na fase 2, o caminho de escrita anônimo no banco já está pronto (RPC `submit_report`, bucket privado de fotos, rate limit); o formulário de relato e a fila offline vêm a seguir. A especificação de UI/UX das três superfícies está em [Design da interface](#design-da-interface-uiux). Produção: https://sentinela-sigma-eosin.vercel.app
 
 ---
 
@@ -45,6 +45,7 @@ O atrito zero para o cidadão é a aposta central: qualquer fluxo de cadastro de
 | **Cidadão** | Relatar um foco casualmente, do celular na rua, em menos de 60s | Anônimo (`reporter_token` device-scoped) |
 | **Agente de endemias** | Triagem e visita de campo com conectividade ruim; precisa de fila offline | Supabase Auth, role `agent` |
 | **Vigilância municipal** | Ver áreas de risco, receber alertas, exportar dados, alocar equipe | Supabase Auth, role `surveillance` |
+| **Administrador** | Gerir contas da equipe do município (cadastro público é fechado) | Supabase Auth, role `admin` |
 
 ---
 
@@ -91,7 +92,7 @@ Implementado em [`supabase/migrations/`](supabase/migrations). Toda tabela de do
 
 Uma foto de quintal alheio com GPS preciso é **dado pessoal de terceiro**. Mitigações adotadas:
 
-- Coordenada exata visível **apenas** para `agent` e `surveillance`; a camada pública usa grid de ~100m.
+- Coordenada exata visível **apenas** para a equipe autenticada (`agent`, `surveillance`, `admin`) do próprio município; a camada pública usa grid de ~100m.
 - Fotos em bucket privado, acessadas por URL assinada — nunca públicas.
 - **Sem coleta de nome, telefone ou e-mail** do cidadão no MVP (minimização de dados); o identificador do dispositivo só é guardado como hash.
 - **Duas barreiras no banco:** privilégios mínimos (o role `anon` não tem acesso a nenhuma tabela; usuários autenticados só leem) e RLS em todas as tabelas, restrito ao município do usuário. Ambas cobertas por testes pgTAP no CI.
@@ -99,6 +100,35 @@ Uma foto de quintal alheio com GPS preciso é **dado pessoal de terceiro**. Miti
 - **Dados no Brasil** — banco em `sa-east-1` (São Paulo).
 
 Em aberto: política de blur de rosto/placa nas fotos — necessária antes de qualquer exposição pública de imagem.
+
+---
+
+## Design da interface (UI/UX)
+
+A especificação completa de UI/UX está em [`.paul/handoffs/HANDOFF-claude-design-2026-10-08.md`](.paul/handoffs/HANDOFF-claude-design-2026-10-08.md). Ela foi escrita como handoff para prototipagem no Claude Design e serve de referência para a implementação das fases 2 a 4.
+
+| Superfície | Quem usa | Fase |
+|---|---|---|
+| **Relato do cidadão** — 3 passos (foto → local → tipo), < 60 s, sem cadastro, funciona offline | Cidadão, agente | MVP (fase 2) |
+| **Mapa público de risco** — células de ~100 m, legenda em classes, nunca pontos exatos | Qualquer pessoa | MVP (fase 4) |
+| **Painel da equipe** — visão geral, mapa operacional, relatos, áreas de risco, análises, exportação CSV, usuários | Vigilância, admin | MVP (fase 4) |
+| **Campo, triagem e alertas** — fila do agente, registro de visita, alertas por limiar | Agente, vigilância | v0.2 |
+
+Princípios:
+- **Uma coisa por tela** e alvos de toque grandes (48 px).
+- **Anonimato visível:** avisos de privacidade no momento certo (foto, local, descrição).
+- **Nunca mentir sobre o envio:** "salvo no aparelho" não é "enviado".
+- **Tom calmo, não alarmista.**
+- **WCAG 2.2 AA como piso**, com contraste ≥ 7:1 nos elementos críticos para uso ao sol.
+- **Linguagem simples** (Lei 15.263/2025).
+
+Identidade visual "caderno de campo":
+- papel quente com tinta escura;
+- verde-azulado da água como cor primária e terracota como acento;
+- uma escala de risco própria, legível por daltônicos;
+- tipografia Bricolage Grotesque + Atkinson Hyperlegible Next.
+
+O documento lista 39 funcionalidades e 49 telas com rota, papel, ações e estados, além de 16 jornadas e dados de exemplo. O projeto é acadêmico e **não é canal oficial**: a interface se inspira no gov.br Design System sem usar sua identidade.
 
 ---
 
@@ -150,6 +180,7 @@ supabase/
 └── tests/database/         # Testes pgTAP (schema, RLS, privilégios)
 .github/
 ├── workflows/ci.yml        # CI (quality, database) + CD do banco (deploy-db)
+├── workflows/keep-alive.yml # Mantém o projeto Supabase (free tier) ativo
 └── dependabot.yml          # Atualizações semanais de actions e npm
 .paul/                      # Especificação e gestão do projeto
 ├── PROJECT.md              # Requisitos, modelo de dados, constraints, decisões
@@ -158,7 +189,8 @@ supabase/
 ├── config.md               # Configuração de integrações
 ├── paul.toml               # Manifest do projeto
 ├── ledger.toml             # Histórico de sessões
-└── phases/                 # Planos, auditorias e sumários por fase
+├── phases/                 # Planos, auditorias e sumários por fase
+└── handoffs/               # Handoffs temáticos (apresentações, especificação de UI/UX)
 AGENTS.md, CLAUDE.md        # Instruções para agentes de código (geradas pelo Next.js 16)
 .env.example                # Variáveis públicas do Supabase usadas pelo app
 ```
@@ -173,8 +205,8 @@ Milestone **v0.1 MVP — Relato, Agregação e Dashboard**, em 5 fases:
 
 | # | Fase | Entrega | Status |
 |---|------|---------|--------|
-| 1 | Fundação | Scaffold Next.js, CI/CD, schema PostGIS multi-município com RLS, deploy | Em andamento |
-| 2 | Relato do cidadão | PWA anônimo: foto + GPS + tipo de criadouro, fila offline | — |
+| 1 | Fundação | Scaffold Next.js, CI/CD, schema PostGIS multi-município com RLS, deploy | ✅ Concluída (2026-10-01) |
+| 2 | Relato do cidadão | PWA anônimo: foto + GPS + tipo de criadouro, fila offline | Em andamento (1/3: escrita anônima no banco ✓; formulário e PWA offline a seguir) |
 | 3 | Agregação em áreas de risco | Job PostGIS que materializa `risk_area` (< 30s para 10k relatos) | — |
 | 4 | Dashboard de vigilância | Mapa de calor, séries temporais, exportação; camada pública em grid ~100m | — |
 | 5 | Validação e entrega acadêmica | Teste em campo com agente de endemias, Lighthouse ≥ 90, artigo | — |
@@ -221,7 +253,7 @@ O job `database` do CI sobe um banco novo, roda `db:test`, `db:lint`, `db:adviso
 **Regras:**
 
 - **Migrations são imutáveis depois de entrar em `main`.** Mudança de schema = nova migration (`pnpm exec supabase migration new <nome>`); nunca editar um arquivo existente em `supabase/migrations/`.
-- **`supabase/seed.sql` é sintético e só para uso local/CI** — nunca é aplicado em ambiente remoto. Os limites dos municípios no seed são retângulos aproximados, não os oficiais.
+- **`supabase/seed.sql` é sintético e só para uso local/CI** — nunca é aplicado em ambiente remoto. Os municípios reais (João Pessoa e Cabedelo, malha do IBGE) vêm de migration, em todos os ambientes.
 - **Privacidade por padrão (LGPD):** RLS está habilitado em todas as tabelas; o role `anon` não tem acesso a nenhuma tabela e usuários autenticados só leem dados do próprio município. Toda tabela nova precisa de RLS — os testes pgTAP falham caso contrário.
 
 
