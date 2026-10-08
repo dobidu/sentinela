@@ -19,7 +19,7 @@ Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 2 of 5 (Relato do cidadão) — In progress
 Plan: 02-01 complete (1/3)
 Status: Loop closed, ready for next PLAN (02-02)
-Last activity: 2026-10-06 — UNIFY 02-01 (SUMMARY); Supabase restaurado após 2ª pausa
+Last activity: 2026-10-08 — Spec de UI/UX para o Claude Design + README atualizado (11dbe3b); fora do loop
 
 Progress:
 - Milestone: [██░░░░░░░░] ~25% (1 de 5 fases; 4 de ~15 planos estimados)
@@ -59,6 +59,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-09-24: Deploy — Supabase sa-east-1, Vercel Git integration (gru1), CD de migrations no Actions (environment production), branch protection com checks | Plan 01-03 | Fluxo push→CI→db push→app |
 | 2026-10-01: Helpers de policy no schema `private` (fora da API REST); `ping` INVOKER; `submit_report`/`resolve_municipality` são as únicas exceções aceitas do advisor (lints 0028/0029) | Plan 02-01 | Toda função nova: API pública em public, helper em private |
 | 2026-10-01: Enterprise audit performed on .paul/phases/02-relato-cidadao/02-01-PLAN.md. Applied 4 must-have, 7 strongly-recommended upgrades. Deferred 6. Verdict: conditionally acceptable | Phase 2 | Plan strengthened for enterprise standards |
+| 2026-10-08: Spec de UI/UX (`.paul/handoffs/HANDOFF-claude-design-2026-10-08.md`) é a fonte de verdade da interface: identidade "caderno de campo", 49 telas (P/S/X), 16 jornadas; inspirada no gov.br DS sem usar sua identidade | Phase 2 | 02-02/02-03 implementam §6 + §13.5; fase 4 implementa §7–8 + §13.6 |
 | 2026-10-01: Fase 2 em 3 planos — 02-01 infra+escrita no banco, 02-02 formulário online, 02-03 PWA+offline | Phase 2 | Planos ≤3 tasks |
 | 2026-10-01: Foto via Storage direto (publishable key, policy só INSERT) + RPC `submit_report` que valida o objeto; nenhuma secret key na Vercel | Plan 02-01 | Mantém least privilege do 01-03 |
 | 2026-10-01: Previews da Vercel sem escrita (env Supabase removida do preview no 02-02) | Plan 02-01 | Sem staging no MVP |
@@ -91,6 +92,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Rate limit por IP (hash com sal rotativo, LGPD) | Audit 02-01 | M | Se houver abuso observado |
 | Máquina de estados de status do relato | Audit 02-01 | S | v0.2 (triagem) |
 | Alerta quando tetos de upload/relato disparam | Audit 02-01 | S | Feature 4 (alertas) |
+| 8 decisões de produto em aberto na spec de UI/UX (§16): protocolo do cidadão, janela/limiar k do mapa, instituição no "Sobre", modo sol, autoria do relato de agente, motivo de descarte/encaminhamento, RPC de gestão de usuários, permissões de admin | Spec UI/UX 2026-10-08 | S | Itens 1/3/4 no 02-02; demais fases 3–4/v0.2 |
 | Conferência manual mensal de security updates da Supabase CLI (ignorada no Dependabot) | Audit 02-01 | S | Mensal |
 
 ### Blockers/Concerns
@@ -110,10 +112,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-10-06
-Stopped at: Sessão pausada após UNIFY 02-01 (commit 9bca03f, CI verde); Fase 2 em 1/3 planos; Supabase ACTIVE_HEALTHY
-Next action: /paul:plan para 02-02 (formulário de relato online), com investigação/correção do keep-alive como 1ª task
-Resume file: .paul/HANDOFF-2026-10-06.md
+Last session: 2026-10-08
+Stopped at: Sessão pausada após spec de UI/UX + README (commit 11dbe3b, CI verde, Supabase ativo); loop ainda fechado em 02-01
+Next action: /paul:plan para 02-02 (formulário de relato online): 1ª task keep-alive; UI segue §6 + §13.5 da spec de UI/UX
+Resume file: .paul/HANDOFF-2026-10-08.md
 Git strategy: `main` — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
@@ -121,8 +123,9 @@ Resume context:
 - Stack e modelo de dados (6 entidades) já decididos e registrados em PROJECT.md — não re-perguntar
 - Produção: https://sentinela-sigma-eosin.vercel.app (Supabase ref ftibuibtjgqxwthwvthf, sa-east-1; Vercel gru1). Fluxo push main → CI → Deploy database → Vercel (Deployment Checks)
 - Contrato de escrita anônima pronto (02-01): upload em report-photos → `submit_report`; erros PT422/404/409/429 (tabela no README); previews ainda com env Supabase (remover no 02-02)
-- Supabase pausou 2× (10-01 sem keep-alive; antes de 10-06 com keep-alive verde em 10-04). Restore só pelo usuário (classificador barra o agente); CLI não tem restore
-- Handoffs de apresentação em .paul/handoffs/ (apresentacao-2026-10-01, aula-2026-10-06, arquitetura-2026-10-06, slides-update-2026-10-06) — para slides; não são contexto de loop
+- Spec de UI/UX em .paul/handoffs/HANDOFF-claude-design-2026-10-08.md: tokens §5.2, tipografia §5.3, fluxo do relato §6, telas P-01…P-05 §13.5; protótipo no Claude Design pode chegar antes ou depois do 02-02
+- Keep-alive: runs verdes em 10-04 e 10-07; banco ativo em 10-08; causa da pausa pré-10-06 não confirmada. Restore só pelo usuário
+- Handoffs de apresentação em .paul/handoffs/ — para slides; não são contexto de loop
 
 ---
 *STATE.md — Updated after every significant action*
