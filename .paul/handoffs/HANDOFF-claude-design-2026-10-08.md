@@ -8,6 +8,10 @@
 Os fatos do produto foram conferidos em `.paul/PROJECT.md`, `.paul/ROADMAP.md`, `README.md` e `supabase/migrations/` em 2026-10-08. As boas práticas vêm de pesquisa feita na mesma data; as fontes estão no §15. Itens marcados **[proposta]** dependem de backend que ainda não existe e devem aparecer no protótipo como estado futuro, sem bloquear o MVP.
 
 ---
+Prompt para geração deste handoff: "Let's generate a markdown document with a handoff for claude design. This handoff will have all instructions for the construction of the system's user interface / user experience. Research for good practices on this matter, and the result must be aesthetically interesting as well as intuitive. 
+Please include in the handoff all functionalities and the pages/screens that will provide them, so that claude design is able to create a fully navigable mockup system.
+
+---
 
 ## 1. Resumo em uma frase
 
@@ -171,8 +175,8 @@ O painel desktop usa corpo de 16 px.
 ### 6.1 Arquitetura
 
 ```
-[Início] ──▶ [1 Foto] ──▶ [2 Local] ──▶ [3 Tipo + enviar] ──▶ [Pronto]
-   │                                                            │
+[Início] ──▶ [1 Foto] ──▶ [2 Local] ──▶ [3 Tipo + enviar] ──▶  [Pronto]
+   │                                                             │
    ├─▶ [Meus relatos] (lista local, status da fila)     ◀───────┘
    ├─▶ [Mapa de risco] (superfície B)
    └─▶ [Sobre / Privacidade]
@@ -353,21 +357,21 @@ A página também deixa claro *"Projeto acadêmico de [instituição] — não s
 ### 8.2 Layout desktop (≥ 1280 px)
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│ Sentinela · Vigilância · João Pessoa  [Últimos 30 dias ▾]     Renato ▾ │
-├─────────────────────────────────────────────────────────────────────┤
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Sentinela · Vigilância · João Pessoa  [Últimos 30 dias ▾]     Renato ▾   │
+├──────────────────────────────────────────────────────────────────────────┤
 │ Novos 7d: 128 │ Aguardando: 41 │ Áreas Alto: 6 │ ▲ 18% vs. sem. anterior │
-├──────────────────────────────────────┬──────────────────────────────┤
-│                                      │ Prioridades                  │
-│          MAPA (risco + pontos        │ ┌──────────────────────────┐ │
-│          exatos para staff)          │ │ ALTO · Valentina, cél. 12│ │
-│                                      │ │ 9 relatos · 3 caixas d'água│
-│                                      │ │ Por quê: densidade ↑, A1/A2│
-│                                      │ └──────────────────────────┘ │
-│                                      │ …                            │
-├──────────────────────────────────────┴──────────────────────────────┤
-│ Série temporal: relatos/dia por nível de risco  [Exportar CSV]       │
-└─────────────────────────────────────────────────────────────────────┘
+├──────────────────────────────────────┬───────────────────────────────────┤
+│                                      │ Prioridades                       │
+│          MAPA (risco + pontos        │ ┌────────────────────────────┐    │
+│          exatos para staff)          │ │ ALTO · Valentina, cél. 12  │    │
+│                                      │ │ 9 relatos · 3 caixas d'água│    |
+│                                      │ │ Por quê: densidade ↑, A1/A2│    |
+│                                      │ └────────────────────────────┘    │
+│                                      │ …                                 │
+├──────────────────────────────────────┴───────────────────────────────────┤
+│ Série temporal: relatos/dia por nível de risco  [Exportar CSV]           │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 O município aparece fixo no cabeçalho, sem seletor: cada usuário da equipe só enxerga o próprio município (regra de acesso do banco). Ver tudo junto é só no mapa público.
