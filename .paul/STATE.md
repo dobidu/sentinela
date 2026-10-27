@@ -11,15 +11,15 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 2 (Relato do cidadão) — APPLY do 02-02: tasks 1–3 feitas, parado no checkpoint human-verify (branch wip/02-02-relato-online)
+**Current focus:** Phase 2 (Relato do cidadão) — APPLY do 02-02: checkpoint human-verify aprovado; PR #11 aguardando ping de produção = 200 para merge
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 2 of 5 (Relato do cidadão) — In progress
-Plan: 02-02 em APPLY (tasks 1–3 feitas; checkpoints human-verify e human-action pendentes)
-Status: APPLY pausado no checkpoint human-verify
-Last activity: 2026-10-27 — Tasks 1–3 do 02-02 (pgTAP 158, Vitest 61, build sem env ok); pausa com WIP na branch wip/02-02-relato-online
+Plan: 02-02 em APPLY (tasks 1–3 feitas; human-verify aprovado; merge do PR #11 e human-action pendentes)
+Status: APPLY aguardando produção (ping 404) para merge do PR #11
+Last activity: 2026-10-27 — Checkpoint aprovado e ações (a)–(e) autorizadas; deps #8/#9/#10 + TS 6 + Next 16.4.3 (2 RCE críticas) incorporados na branch; PR #11 aberto
 
 Progress:
 - Milestone: [██░░░░░░░░] ~25% (1 de 5 fases; 4 de ~16 planos estimados)
@@ -31,7 +31,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ◐        ○     [APPLY 02-02: tasks 1–3 feitas; checkpoint human-verify pendente]
+  ✓        ◐        ○     [APPLY 02-02: human-verify aprovado; merge do PR #11 bloqueado por ping 404]
 ```
 
 ## Accumulated Context
@@ -64,6 +64,7 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | 2026-10-22: Fase 2 em 4 planos — 02-02 keep-alive + lib de relato + fluxo online (GPS); 02-03 mapa pin fixo + P-01 + Sobre/Privacidade + polimento; 02-04 PWA + fila offline | Plan 02-02 | Substitui a divisão em 3 de 2026-10-01 |
 | 2026-10-22: Keep-alive por escrita diária no banco (`psql` + `SUPABASE_KEEPALIVE_DB_URL`, role `keep_alive_writer` confinado, environment production) em `private.keep_alive_beat`, mais ping REST; falha abre issue | Plan 02-02 | Ping REST de 3 em 3 dias não impediu a 3ª pausa (10-10 verde → 10-13 DNS fora) |
 | 2026-10-22: Protocolo do cidadão (§16 #1) e modo sol (§16 #4) ficam para v0.2; instituição (§16 #3) = LAVID/UFPB, responsável Carlos Eduardo Batista | Plan 02-02 | P-05 sem código; P-08 não existe no MVP; Sobre/Privacidade no 02-03 |
+| 2026-10-27: Checkpoint human-verify do 02-02 aprovado; ações (a)–(e) autorizadas. Deps incorporadas na branch (não merge individual): #8, #9, #10 (commits entram no histórico), TS 6 em vez do #3 (branch defasada), Next 16.4.3 por GHSA-2464-fhr4-w9xw/GHSA-673q-mjm6-r5xr (≤16.4.0, inclui 16.3.6 de produção) | Plan 02-02 | Um único push em main via PR #11 |
 | 2026-10-27: WIP do 02-02 em branch `wip/02-02-relato-online` (sem push em main: ping de produção 404 e checkpoint não aprovado) | Plan 02-02 | Branch não dispara CI/deploy; integrar via PR |
 | 2026-10-22: Dev local no macOS com Colima (Docker CLI) + pnpm 11.9.0 via npm; `supabase start` (stack completo, Storage incluso) | Plan 02-02 | Fluxo com escrita verificado localmente |
 | 2026-10-01: Fase 2 em 3 planos — 02-01 infra+escrita no banco, 02-02 formulário online, 02-03 PWA+offline | Phase 2 | Planos ≤3 tasks |
@@ -93,7 +94,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Banco de staging separado p/ previews | Audit 01-03 | M | Fase 2 (previews com escrita) |
 | Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
 | Roll da secret key `default` do Supabase (4 chars do prefixo aleatório expostos no histórico git; key não usada — inutiliza o resíduo) | UNIFY 01-03 | S | Antes da fase 2 usar chave secreta |
-| PRs do Dependabot abertos: #3 (TypeScript 6), #6 (@types/node 26), #8/#9/#10 (minor/patch, actions) — avaliar | UNIFY 01-03 | S | 02-02 (Task 1) |
+| PRs do Dependabot: #8/#9/#10/#3 incorporados no PR #11 (fecham no merge); **#6 ainda aberto** — fechar com comentário (agente sem permissão de escrita no GitHub para isso) | UNIFY 01-03 | S | Merge do PR #11 |
+| `source-map-js` (high, GHSA-68fv-2mgg-jv7q) via next>postcss — só build-time | APPLY 02-02 | S | Quando o Next atualizar postcss |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
 | **2026-10-06: projeto Supabase INACTIVE de novo** — 3ª pausa entre 10-10 e 10-13 (DNS fora; runs 10-13…10-22 falharam); restaurado pelo usuário em 10-22. Fix planejado: Task 1 do 02-02 (escrita diária). Antes: apesar de keep-alive agendado verde em 10-04 (run 37210625181, HTTP 200). Hipóteses não verificadas: RPC `select 1` (INVOKER, sem tocar tabela) não conta como atividade; janela < 7 dias; intervalo de 3 dias longo. Restaurado em 10-06 pelo usuário; **investigar como 1ª task do 02-02** (histórico: 1ª pausa 10-01 sem keep-alive) | UNIFY 02-01 | S | **1ª task do 02-02** |
 | Advisor do CI (CLI 2.117) não tem lints 0028/0029 do advisor de produção — atualizar CLI (≥2.119) com bump sincronizado | APPLY 02-01 | S | 02-02 |
@@ -123,9 +125,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-10-27
-Stopped at: APPLY 02-02 — checkpoint human-verify (fluxo local) não executado; usuário continua de outra máquina
-Next action: git checkout wip/02-02-relato-online → /paul:resume → rodar checkpoint human-verify (roteiro no handoff) e autorizar ações (a)–(e)
-Resume file: .paul/HANDOFF-2026-10-27.md
+Stopped at: APPLY 02-02 — human-verify aprovado; PR #11 (wip → main) aberto, CI verde; merge aguarda ping de produção = 200 (ainda 404 no fim da sessão)
+Next action: usuário resolve 404 PGRST202 + remove env do Preview na Vercel + fecha #6 → agente confere ping 200 → commit de .paul/ + AGENTS.md na branch → merge do PR #11 → checkpoint human-action (secret keep-alive) → /paul:unify
+Resume file: .paul/HANDOFF-2026-10-27.md (2ª sessão; a 1ª está em .paul/handoffs/archive/)
 Git strategy: WIP em `wip/02-02-relato-online` (integrar em `main` por PR quando ping de produção = 200 e checkpoint aprovado) — repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
@@ -135,8 +137,9 @@ Resume context:
 - Contrato de escrita anônima pronto (02-01): upload em report-photos → `submit_report`; erros PT422/404/409/429 (tabela no README); previews ainda com env Supabase (remover no 02-02)
 - Spec de UI/UX em .paul/handoffs/HANDOFF-claude-design-2026-10-08.md: tokens §5.2, tipografia §5.3, fluxo do relato §6, telas P-01…P-05 §13.5; protótipo no Claude Design pode chegar antes ou depois do 02-02
 - Keep-alive: runs verdes em 10-04/10-07/10-10; falhas 10-13…10-22 (3ª pausa). Restaurado pelo usuário 10-22. Restore só pelo usuário
-- Dev local: `colima start` + `pnpm exec supabase start` (Studio 127.0.0.1:54323); `.env.local` pelo README; db:test 158/158 e Vitest 61/61 em 10-27
-- Nova máquina: precisa de Docker/Colima, pnpm 11.9.0 e `pnpm install`
+- Dev local: macOS `colima start` / Linux-WSL2 Docker Desktop; `pnpm exec supabase start` (stack completo, não `db:start`; Studio 127.0.0.1:54323); `.env.local` pelo README; db:test 158/158 e Vitest 61/61 em 10-27
+- WSL2: porta 3000 ocupada por outro processo → `pnpm dev` sobe na 3001
+- Next 16.4.3 + TS 6 na branch; produção segue em Next 16.3.6 (vulnerável, 2 RCE críticas) até o merge do PR #11
 - Handoffs de apresentação em .paul/handoffs/ — para slides; não são contexto de loop
 
 ---
