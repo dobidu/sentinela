@@ -256,6 +256,21 @@ O job `database` do CI sobe um banco novo, roda `db:test`, `db:lint`, `db:adviso
 - **`supabase/seed.sql` é sintético e só para uso local/CI** — nunca é aplicado em ambiente remoto. Os municípios reais (João Pessoa e Cabedelo, malha do IBGE) vêm de migration, em todos os ambientes.
 - **Privacidade por padrão (LGPD):** RLS está habilitado em todas as tabelas; o role `anon` não tem acesso a nenhuma tabela e usuários autenticados só leem dados do próprio município. Toda tabela nova precisa de RLS — os testes pgTAP falham caso contrário.
 
+### Rodar o relato contra o Supabase local
+
+O formulário de relato (`/relatar`) fala com o Supabase pelo navegador, com a publishable key. Para testar o envio de ponta a ponta sem tocar a produção:
+
+```bash
+# Docker: Docker Desktop, ou no macOS `brew install colima docker && colima start`
+pnpm exec supabase start      # stack completo (Postgres, API, Storage, Studio em http://127.0.0.1:54323)
+pnpm exec supabase status -o env \
+  | sed -n 's/^API_URL=/NEXT_PUBLIC_SUPABASE_URL=/p; s/^PUBLISHABLE_KEY=/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=/p' \
+  > .env.local
+pnpm dev                      # http://localhost:3000
+```
+
+`pnpm db:start` sobe só o Postgres e não basta aqui: o envio da foto usa o Storage. Câmera e GPS no celular exigem HTTPS; para testar no aparelho pela rede local, use `pnpm dev --experimental-https`. Sem as variáveis `NEXT_PUBLIC_SUPABASE_*` (CI, previews da Vercel), o app abre normalmente, mas o envio fica desativado com o aviso "Envio desativado neste ambiente de teste".
+
 
 ### Deploy
 
@@ -293,7 +308,20 @@ Outras RPCs públicas: `resolve_municipality(p_lon, p_lat)` → `{id, name}` do 
 
 ### Keep-alive
 
-O free tier do Supabase pausa o projeto depois de ~7 dias sem atividade, e o `Deploy database` falha enquanto o projeto está pausado. O workflow [`keep-alive.yml`](.github/workflows/keep-alive.yml) chama `rpc/ping` a cada 3 dias com a publishable key (variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`; não são secrets). Se falhar, o GitHub avisa por e-mail: restaure o projeto no dashboard e rode de novo o `Deploy database`. O GitHub desativa workflows agendados em repositórios sem commit há 60 dias.
+O free tier do Supabase pausa o projeto por inatividade, e o `Deploy database` falha enquanto o projeto está pausado. Um ping REST a cada 3 dias **não** bastou: o projeto pausou entre 2026-10-10 (ping HTTP 200) e 2026-10-13. Desde o plano 02-02, o workflow [`keep-alive.yml`](.github/workflows/keep-alive.yml) roda todo dia e:
+
+1. abre uma conexão Postgres e grava um heartbeat em `private.keep_alive_beat` (linhas com mais de 90 dias são apagadas na mesma transação). Usa o role `keep_alive_writer`, que só enxerga essa tabela (provado em `supabase/tests/database/keep_alive.test.sql`), pelo secret `SUPABASE_KEEPALIVE_DB_URL` do environment `production`. **Não** usa a credencial de owner do CD;
+2. chama `rpc/ping` com a publishable key (variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`; não são secrets);
+3. se algo falhar, abre ou comenta a issue **"Keep-alive falhou"** (label `ops`); o próximo run verde comenta e fecha.
+
+O role nasce na migration sem login e sem senha (o repo é público). Para ativar, uma vez, fora do repo:
+
+```sql
+-- SQL Editor do Supabase; senha gerada localmente (ex.: openssl rand -base64 32)
+alter role keep_alive_writer with login password '<senha>';
+```
+
+Depois, crie o secret `SUPABASE_KEEPALIVE_DB_URL` no environment `production` com a URL do session pooler no mesmo formato da `SUPABASE_DB_URL`, trocando o usuário por `keep_alive_writer.<project-ref>`. Se o projeto pausar mesmo assim: restaure no dashboard, rode de novo o `Deploy database` e consulte `select max(beat_at) from private.keep_alive_beat` para datar a última atividade. O GitHub desativa workflows agendados em repositórios sem commit há 60 dias.
 
 ### Atualizar a Supabase CLI
 

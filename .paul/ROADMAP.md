@@ -21,7 +21,7 @@ Phases: 1 of 5 complete (20%)
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
 | 1 | Fundação | 3/3 | ✅ Complete | 2026-10-01 |
-| 2 | Relato do cidadão | 1/3 (02-01 ✓) | In progress | - |
+| 2 | Relato do cidadão | 1/4 (02-01 ✓, 02-02 planning) | In progress | - |
 | 3 | Agregação em áreas de risco | TBD | Not started | - |
 | 4 | Dashboard de vigilância | TBD | Not started | - |
 | 5 | Validação e entrega acadêmica | TBD | Not started | - |
@@ -43,8 +43,9 @@ Phases: 1 of 5 complete (20%)
 **Escopo:** PWA instalável, captura de foto com compressão client-side, `reporter_token` device-scoped, fila offline (service worker) com 100% de entrega ao reconectar, upload para bucket privado.
 **Plans:**
 - 02-01 ✓ — Caminho de escrita anônimo no banco (RPC `submit_report`, rate limit, histórico de status, bucket privado, JP + Cabedelo reais) + keep-alive + Dependabot (2026-10-01; UNIFY 2026-10-06)
-- 02-02 — Formulário de relato online (cliente Supabase, foto comprimida, GPS, ≤3 telas; previews sem escrita)
-- 02-03 — PWA + fila offline (manifest, service worker, IndexedDB, reenvio)
+- 02-02 — Keep-alive por escrita diária no banco + lib de relato (token, foto sem EXIF, GPS, envio, erros) + fluxo online de 3 passos com tokens/fontes; previews sem escrita (planejado 2026-10-22)
+- 02-03 — Mapa com pin fixo no passo Local + P-01 Início + Sobre/Privacidade (LAVID/UFPB) + polimento visual
+- 02-04 — PWA + fila offline (manifest, service worker, IndexedDB, reenvio, Meus relatos)
 
 ### Phase 3: Agregação em áreas de risco (Feature 3)
 **Goal:** Job PostGIS que materializa `RiskArea` a partir dos relatos em < 30s para 10k relatos.

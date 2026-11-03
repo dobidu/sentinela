@@ -16,3 +16,6 @@ updates:
     # com `version:` do supabase/setup-cli no ci.yml (checado no job database).
     ignore:
       - dependency-name: supabase
+      # Os tipos seguem o major do runtime (.nvmrc = Node 24), não o último Node.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]

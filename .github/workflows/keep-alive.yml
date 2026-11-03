@@ -1,25 +1,55 @@
 name: Keep-alive
 
-# O free tier do Supabase pausa o projeto após ~7 dias sem atividade.
-# Este workflow chama a RPC pública `ping` a cada 3 dias. Usa só a publishable
-# key (pública por design, guardada como variável de repositório), sem secrets.
+# O free tier do Supabase pausa o projeto por inatividade. O ping REST a cada
+# 3 dias (versão do plano 02-01) NÃO bastou: o projeto pausou entre 2026-10-10
+# (ping HTTP 200) e 2026-10-13 (DNS fora). Desde o plano 02-02:
+# 1. Todo dia o job abre uma conexão Postgres e grava um heartbeat em
+#    private.keep_alive_beat com o role keep_alive_writer, que só enxerga essa
+#    tabela. NÃO usa a credencial de owner do CD (SUPABASE_DB_URL).
+# 2. Depois chama a RPC pública `ping` com a publishable key (sonda da API).
+# 3. Se falhar, abre (ou comenta) uma issue "Keep-alive falhou"; no próximo run
+#    verde, comenta e fecha.
 # Atenção: o GitHub desativa workflows agendados após 60 dias sem commit no repo.
 
 on:
   schedule:
-    - cron: '17 9 */3 * *'
+    - cron: '23 10 * * *'
   workflow_dispatch:
 
 permissions: {}
 
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
 jobs:
   ping:
-    name: Ping Supabase
+    name: Heartbeat + ping
     if: github.repository == 'dobidu/sentinela'
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
+    environment: production
     steps:
-      - name: Ping
+      - name: Heartbeat no banco
+        env:
+          SUPABASE_KEEPALIVE_DB_URL: ${{ secrets.SUPABASE_KEEPALIVE_DB_URL }}
+        run: |
+          if [ -z "${SUPABASE_KEEPALIVE_DB_URL}" ]; then
+            echo "::error::Secret SUPABASE_KEEPALIVE_DB_URL ausente no environment production."
+            exit 1
+          fi
+          psql --version
+          beat="$(psql "${SUPABASE_KEEPALIVE_DB_URL}" -v ON_ERROR_STOP=1 -X -q -tA \
+            -c "begin;" \
+            -c "delete from private.keep_alive_beat where beat_at < now() - interval '90 days';" \
+            -c "insert into private.keep_alive_beat default values returning beat_at;" \
+            -c "commit;")" || {
+            echo "::error::Heartbeat falhou (conexão ou permissão). Projeto pausado? Restaurar no dashboard do Supabase."
+            exit 1
+          }
+          echo "beat_at: ${beat}"
+
+      - name: Ping da API
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
@@ -33,4 +63,40 @@ jobs:
           if [ "${status}" != "200" ]; then
             echo "::error::Supabase não respondeu ao ping (HTTP ${status}). Projeto pausado? Restaurar no dashboard do Supabase e rodar de novo o job Deploy database do último run de main."
             exit 1
+          fi
+
+  notify:
+    name: Issue de falha
+    needs: ping
+    if: always() && github.repository == 'dobidu/sentinela'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      issues: write
+    steps:
+      - name: Abrir, comentar ou fechar issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RESULT: ${{ needs.ping.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Keep-alive falhou"
+          number="$(gh issue list --state open --label ops --search "\"${title}\" in:title" \
+            --json number,title --jq ".[] | select(.title == \"${title}\") | .number" | head -n1)"
+          if [ "${RESULT}" = "success" ]; then
+            if [ -n "${number}" ]; then
+              gh issue comment "${number}" --body "Keep-alive voltou a passar: ${RUN_URL}"
+              gh issue close "${number}"
+            fi
+            exit 0
+          fi
+          gh label create ops --color B60205 --description "Operação / incidentes" --force
+          body="Run com resultado \`${RESULT}\`: ${RUN_URL}
+
+          Se o projeto do Supabase estiver pausado: restaurar no dashboard e rodar de novo o job Deploy database do último run de main."
+          if [ -n "${number}" ]; then
+            gh issue comment "${number}" --body "${body}"
+          else
+            gh issue create --title "${title}" --label ops --body "${body}"
           fi

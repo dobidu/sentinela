@@ -1,24 +1,109 @@
 @import "tailwindcss";
 
+/*
+ * Tokens da identidade "caderno de campo" (spec de UI/UX §5.2).
+ * Claro é o padrão (uso externo, de dia); escuro segue o sistema.
+ * A escala de risco (dado) fica fora daqui até a fase 4.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --paper: #f7f3ea;
+  --surface: #fffdf8;
+  --ink: #1b1f23;
+  --ink-muted: #4a5058;
+  --line: #d9d2c3;
+  --agua: #0f4c5c;
+  --on-agua: #ffffff;
+  --terracota: #9a3b22;
+  --ocre: #e0a030;
+  --ok: #2f6b3f;
+  --atencao: #8a5a00;
+  --erro: #b3261e;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #121719;
+    /* surface, line, ok e atencao no escuro não estão na spec: derivados. */
+    --surface: #1a2124;
+    --ink: #ece6da;
+    --ink-muted: #a9b0b6;
+    --line: #2e3a3e;
+    --agua: #7cc4d2;
+    --on-agua: #0b2b33;
+    --terracota: #f09a7a;
+    --ok: #8fd19e;
+    --atencao: #e8c170;
+    --erro: #f2b8b5;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-agua: var(--agua);
+  --color-on-agua: var(--on-agua);
+  --color-terracota: var(--terracota);
+  --color-ocre: var(--ocre);
+  --color-ok: var(--ok);
+  --color-atencao: var(--atencao);
+  --color-erro: var(--erro);
+
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-atkinson), system-ui, sans-serif;
+
+  --radius-card: 12px;
+  --radius-button: 14px;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* Corpo de 18 px em rem: acompanha a fonte grande do sistema (§5.3, §9). */
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+/* Anel de foco de 3 px em --agua com 2 px de offset (§9). */
+:focus-visible {
+  outline: 3px solid var(--agua);
+  outline-offset: 2px;
+}
+
+/* Carimbo RECEBIDO: um único momento expressivo (§5.4). */
+@keyframes carimbo {
+  from {
+    transform: scale(1.15) rotate(-2deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+.carimbo {
+  display: inline-block;
+  transform: rotate(-2deg);
+  animation: carimbo 220ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
