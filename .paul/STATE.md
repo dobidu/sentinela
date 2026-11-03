@@ -129,9 +129,9 @@ PLAN ──▶ APPLY ──▶ UNIFY
 ## Session Continuity
 
 Last session: 2026-11-03
-Stopped at: UNIFY do 02-02 concluído; PR de docs (STATE/SUMMARY/ROADMAP/.gitignore) aberto a partir de `docs/02-02-unify`
+Stopped at: UNIFY do 02-02 concluído e mergeado (PR #14, `8d702f2`); sessão pausada antes do checkpoint do keep-alive
 Next action: usuário faz o checkpoint human-action do keep-alive → agente roda `gh workflow run keep-alive.yml` e confere `beat_at` → `/paul:plan` do 02-03
-Resume file: .paul/phases/02-relato-cidadao/02-02-SUMMARY.md
+Resume file: .paul/HANDOFF-2026-11-03.md
 Git strategy: `main` protegida; mudanças via PR (merge commit). Repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) e `graphify-out/` fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`
