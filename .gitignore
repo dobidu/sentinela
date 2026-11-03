@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Ferramentas locais
 .serena/
+
+# graphify (grafo local do repo)
+graphify-out/
