@@ -18,17 +18,15 @@ phases = 5
 number = 2
 name = "Relato do cidadão"
 status = "in_progress"
-plans_completed = 1
+plans_completed = 2
 
 [loop]
-position = "APPLY"
-plan = "02-02"
-plan_path = "phases/02-relato-cidadao/02-02-PLAN.md"
+position = "IDLE"
 
 [satellite]
 groom = true
 
 [stats]
-total_plans = 4
+total_plans = 5
 total_phases = 5
-last_activity = "2026-10-27T17:30:00Z"
+last_activity = "2026-11-03T17:30:00Z"
