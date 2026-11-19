@@ -12,6 +12,7 @@ import { submitReport } from "@/lib/report/submit";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 import { useReportDraft } from "../report-draft";
+import { RecognizeDialog } from "./recognize-dialog";
 
 const MAX_DESCRIPTION = 500;
 
@@ -71,6 +72,7 @@ export default function TypeStep() {
 
       <fieldset disabled={sending} aria-busy={sending} className="flex flex-col gap-5">
         <legend className="sr-only">Tipo de foco</legend>
+        <RecognizeDialog />
         <div className="grid grid-cols-2 gap-3">
           {BREEDING_SITES.map((site) => {
             const selected = draft.type === site.value;

@@ -29,6 +29,9 @@ vi.mock("@/lib/report/location", async (importOriginal) => ({
   resolveMunicipality: location.resolveMunicipality,
 }));
 
+// Sem WebGL (jsdom): o passo 2 usa o fluxo só com GPS. O mapa tem testes próprios.
+vi.mock("@/lib/map/protocol", () => ({ hasWebGL: () => false, registerPmtiles: vi.fn() }));
+
 const photo: PreparedPhoto = {
   blob: new Blob(["x"], { type: "image/webp" }),
   ext: "webp",
@@ -119,6 +122,37 @@ describe("passo 3: tipo + enviar", () => {
     renderWith(<TypeStep />, {});
 
     expect(router.replace).toHaveBeenCalledWith("/relatar/foto");
+  });
+});
+
+describe("passo 3: folha \"Não sei o tipo?\"", () => {
+  beforeEach(() => {
+    // jsdom não implementa <dialog> modal.
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+      this.dispatchEvent(new Event("close"));
+    });
+  });
+
+  it("abre o guia sem sair do passo, fecha e devolve o foco, mantendo o rascunho", () => {
+    renderWith(<TypeStep />, { ...ready, type: "pneu", description: "atrás da escola" });
+    const trigger = screen.getByRole("button", { name: "Não sei o tipo?" });
+
+    fireEvent.click(trigger);
+    const dialog = screen.getByRole("dialog", { hidden: true });
+    expect(dialog).toHaveAttribute("open");
+    expect(dialog).toHaveAccessibleName("Como reconhecer um foco");
+    expect(screen.getByText("Não mexa em propriedade alheia: relate.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar", hidden: true }));
+    expect(dialog).not.toHaveAttribute("open");
+    expect(trigger).toHaveFocus();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(screen.getByRole("radio", { name: /pneu/i })).toBeChecked();
+    expect(screen.getByRole("textbox")).toHaveValue("atrás da escola");
   });
 });
 

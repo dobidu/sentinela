@@ -11,15 +11,15 @@ about: "sentinela"
 See: .paul/PROJECT.md (updated 2026-10-01)
 
 **Core value:** Um sistema de relato e triagem de focos de arboviroses, que agrega os relatos em áreas de risco e alerta a vigilância municipal.
-**Current focus:** Phase 2 (Relato do cidadão) — 02-02 fechado (UNIFY 2026-11-03); próximo é planejar o 02-03
+**Current focus:** Phase 2 (Relato do cidadão) — 02-03 aplicado (mapa pin fixo + páginas públicas), checkpoint aprovado; falta preview 206 + PR
 
 ## Current Position
 
 Milestone: v0.1 MVP — Relato, Agregação e Dashboard
 Phase: 2 of 5 (Relato do cidadão) — In progress
-Plan: 02-02 completo (SUMMARY em .paul/phases/02-relato-cidadao/02-02-SUMMARY.md); checkpoint human-action do keep-alive pendente
-Status: Ready for next PLAN (02-03)
-Last activity: 2026-11-03 — Projeto Supabase novo (vlrjhznkztgqulpgsxsd); PR #11 mergeado (1f0a483); Deploy database aplicou as migrations; ping 200; produção em Next 16.4.3; UNIFY do 02-02
+Plan: 02-03 applied, checkpoint human-verify approved (.paul/phases/02-relato-cidadao/02-03-PLAN.md)
+Status: APPLY complete locally; pending commit/push → preview 206 check → PR
+Last activity: 2026-11-19 — APPLY 02-03: tasks 1–3 feitas, verificação completa (lint, typecheck, 85 testes, db:test 158/158, build, Lighthouse); checkpoint aprovado pelo responsável (base legal art. 7º IV aceita, REVISAR removido)
 
 Progress:
 - Milestone: [███░░░░░░░] ~31% (1 de 5 fases; 5 de ~16 planos estimados)
@@ -31,7 +31,7 @@ Progress:
 Current loop state:
 ```
 PLAN ──▶ APPLY ──▶ UNIFY
-  ✓        ✓        ✓     [Loop complete — 02-02 fechado; pronto para PLAN do 02-03]
+  ✓        ✓        ○     [02-03 aplicado; falta preview 206 + PR, depois UNIFY]
 ```
 
 ## Accumulated Context
@@ -40,6 +40,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 | Decision | Phase | Impact |
 |----------|-------|--------|
+| 2026-11-19: Enterprise audit performed on .paul/phases/02-relato-cidadao/02-03-PLAN.md. Applied 4 must-have, 7 strongly-recommended upgrades. Deferred 4. Verdict: conditionally acceptable | Phase 2 | Plan strengthened for enterprise standards |
+| 2026-11-19: 02-03 — mapa MapLibre + PMTiles próprio de JP/Cabedelo em `public/map/` (sem tiles externos); escopo roadmap + P-14; LAVID = "Laboratório de Aplicações de Vídeo Digital"/UFPB confirmado; sem migration (bbox estático no cliente) | Plan 02-03 | Basemap reaproveitado na fase 4 e no cache offline do 02-04 |
 | 2026-11-03: Projeto Supabase recriado — `ftibuibtjgqxwthwvthf` (restore travado em "Coming up": `supabase_admin` com 28P01, schema `realtime` incompleto) → `vlrjhznkztgqulpgsxsd` (sentinela_db, sa-east-1, Data API ligada, "expose new tables" ligado, RLS automático desligado, signup off); antigo apagado | Plan 02-02 | GitHub vars/secret e Vercel Production trocados; Preview sem env |
 | 2026-11-03: "Automatically expose new tables" fica ligado — `rls_base.sql` só revoga, o SELECT de `authenticated` vem do grant padrão (paridade com local/CI) | Plan 02-02 | Fase 4 depende disso; desligar exige migration com GRANT explícito |
 | 2026-11-03: `SUPABASE_DB_URL` (environment production) = Session pooler; Direct connection é só IPv6 e falha nos runners do GitHub | Plan 02-02 | Vale também para `SUPABASE_KEEPALIVE_DB_URL` |
@@ -97,10 +99,8 @@ PLAN ──▶ APPLY ──▶ UNIFY
 | Banco de staging separado p/ previews | Audit 01-03 | M | Fase 2 (previews com escrita) |
 | Backups/PITR | Audit 01-03 | M | Antes da validação em campo (fase 5) |
 | **Checkpoint human-action do keep-alive (02-02):** no projeto novo, `alter role keep_alive_writer with login password '<forte, alfanumérica>';` + secret `SUPABASE_KEEPALIVE_DB_URL` (environment production, Session pooler, usuário `keep_alive_writer.vlrjhznkztgqulpgsxsd`); depois `gh workflow run keep-alive.yml` e conferir `beat_at`. Até lá o job diário falha e abre issue | UNIFY 02-02 | S | **Antes do 02-03** |
-| Observar ≥ 7 dias sem pausa do projeto novo (desde 2026-11-03) | UNIFY 02-02 | S | UNIFY 02-03 |
-| Lighthouse do fluxo de relato | UNIFY 02-02 | S | 02-03 (polimento) |
+| Observar ≥ 7 dias sem pausa do projeto novo — **falhou**: pausou ~11-10 (keep-alive sem secret), restaurado 2026-11-19; recontar a partir do 1º run verde do keep-alive | UNIFY 02-02 | S | UNIFY 02-03 |
 | `photo.ts` decodifica o bitmap inteiro (pico ~48 MB em foto de 12 MP) | UNIFY 02-02 | S | Se houver relato de travamento em aparelho fraco |
-| Confirmar nome por extenso do LAVID em `/privacidade` | UNIFY 02-02 | S | 02-03 (Sobre/Privacidade) |
 | `source-map-js` (high, GHSA-68fv-2mgg-jv7q) via next>postcss — só build-time | APPLY 02-02 | S | Quando o Next atualizar postcss |
 | Expand/contract é regra documentada, sem verificação em CI | UNIFY 01-03 | S | Fase 2 (1ª migration nova) |
 | ~~Projeto Supabase pausado repetidamente~~ — **encerrado em 2026-11-03** com projeto novo; histórico:  3ª pausa entre 10-10 e 10-13 (DNS fora; runs 10-13…10-22 falharam); restaurado pelo usuário em 10-22. Fix planejado: Task 1 do 02-02 (escrita diária). Antes: apesar de keep-alive agendado verde em 10-04 (run 37210625181, HTTP 200). Hipóteses não verificadas: RPC `select 1` (INVOKER, sem tocar tabela) não conta como atividade; janela < 7 dias; intervalo de 3 dias longo. Restaurado em 10-06 pelo usuário; **investigar como 1ª task do 02-02** (histórico: 1ª pausa 10-01 sem keep-alive) | UNIFY 02-01 | S | **1ª task do 02-02** |
@@ -128,10 +128,10 @@ PLAN ──▶ APPLY ──▶ UNIFY
 
 ## Session Continuity
 
-Last session: 2026-11-03
-Stopped at: UNIFY do 02-02 concluído e mergeado (PR #14, `8d702f2`); sessão pausada antes do checkpoint do keep-alive
-Next action: usuário faz o checkpoint human-action do keep-alive → agente roda `gh workflow run keep-alive.yml` e confere `beat_at` → `/paul:plan` do 02-03
-Resume file: .paul/HANDOFF-2026-11-03.md
+Last session: 2026-11-19
+Stopped at: APPLY 02-03 complete (uncommitted on feat/02-03-mapa-paginas)
+Next action: autorização para commit/push → conferir 206 + immutable no preview Vercel → PR/merge → /paul:unify; usuário faz o checkpoint do keep-alive (produção pausa de novo ~11-26 sem ele)
+Resume file: .paul/phases/02-relato-cidadao/02-03-PLAN.md
 Git strategy: `main` protegida; mudanças via PR (merge commit). Repo público em https://github.com/dobidu/sentinela; `.claude/` (PAUL Framework) e `graphify-out/` fora do versionamento via .gitignore
 Resume context:
 - Enterprise Plan Audit habilitado → fluxo é `plan → audit → apply → unify`

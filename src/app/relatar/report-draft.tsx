@@ -16,7 +16,8 @@ import type { Municipality } from "@/lib/report/location";
 import type { PreparedPhoto } from "@/lib/report/photo";
 import type { SubmitAttempt } from "@/lib/report/submit";
 
-export type DraftPosition = { lon: number; lat: number; accuracy: number };
+/** `accuracy` = precisão do GPS em metros; null se o ponto foi ajustado no mapa. */
+export type DraftPosition = { lon: number; lat: number; accuracy: number | null };
 
 /**
  * Rascunho do relato só em memória (nada de foto em localStorage). Some num
