@@ -329,6 +329,16 @@ O Dependabot ignora o pacote `supabase`, porque a versão precisa ser trocada em
 
 ---
 
+## Mapa
+
+O passo "Local" do relato usa [MapLibre GL JS](https://maplibre.org/) com um basemap vetorial próprio. Não há servidor de tiles externo: tudo sai da origem do app.
+
+- **Dados:** recorte de João Pessoa + Cabedelo (zoom 0–15, ~5 MB) de um build diário da [Protomaps](https://protomaps.com), em `public/map/jp-cabedelo-<data>.pmtiles`. Dados © OpenStreetMap contributors, sob [ODbL](https://www.openstreetmap.org/copyright). Origem, data, bbox, tamanho e SHA-256 ficam em `public/map/ATTRIBUTION.md`.
+- **Regenerar:** `scripts/map/build-basemap.sh [YYYYMMDD]`. O script confere o SHA-256 do binário `pmtiles` e das fontes, recusa arquivo acima de 30 MB, troca o arquivo versionado e atualiza `src/lib/map/basemap-file.ts`. Regenerar só por decisão de plano: cada versão fica no histórico do git.
+- **Cache:** o nome do arquivo leva a data do build, e `/map/*` é servido com `Cache-Control: immutable` (`next.config.ts`). Um arquivo novo nunca reaproveita offsets antigos em cache.
+- **Carregamento:** o MapLibre só baixa no passo 2 (`next/dynamic`). O worker dele é emitido pelo bundler como arquivo estático da própria origem (`setWorkerUrl`). Sem WebGL, a tela cai no fluxo só com GPS.
+- **CSP futura:** o mapa precisa de `worker-src 'self'` (e `blob:` por segurança), `img-src 'self' data: blob:` e `connect-src 'self'` + o domínio do Supabase. Nada de origem externa.
+
 ## Licença
 
 [MIT](LICENSE) © 2026 Carlos Eduardo Coelho Freire Batista

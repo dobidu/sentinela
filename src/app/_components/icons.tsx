@@ -60,6 +60,18 @@ export const CheckIcon = (p: P) => (
   </Icon>
 );
 
+export const PlusIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
+export const MinusIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+  </Icon>
+);
+
 export const AlertIcon = (p: P) => (
   <Icon {...p}>
     <path d="M12 3 2 20h20L12 3Z" />
